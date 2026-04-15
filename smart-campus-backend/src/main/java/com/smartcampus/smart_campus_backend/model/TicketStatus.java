@@ -1,0 +1,10 @@
+package com.smartcampus.smart_campus_backend.model;
+
+public enum  TicketStatus {
+    OPEN,
+    IN_PROGRESS,
+    RESOLVED,
+    CLOSED,
+    REJECTED
+    
+}

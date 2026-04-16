@@ -9,12 +9,14 @@ function App() {
   return (
     <Router>
       <MainLayout>
-        <Routes>
-          <Route path="/" element={<Navigate to={RESOURCE_DASHBOARD_ROUTE} replace />} />
-          <Route path={RESOURCE_DASHBOARD_ROUTE} element={<ResourceDashboard />} />
-          <Route path={RESOURCE_CATALOGUE_ROUTE} element={<ResourcesPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+        <div className="flex min-h-[100dvh] w-full flex-1 md:min-h-full">
+          <Routes>
+            <Route path="/" element={<Navigate to={RESOURCE_DASHBOARD_ROUTE} replace />} />
+            <Route path={RESOURCE_DASHBOARD_ROUTE} element={<ResourceDashboard />} />
+            <Route path={RESOURCE_CATALOGUE_ROUTE} element={<ResourcesPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </div>
       </MainLayout>
     </Router>
   );

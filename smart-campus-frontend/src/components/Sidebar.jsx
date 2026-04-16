@@ -32,7 +32,7 @@ export default function Sidebar({ isMobileOpen, isCollapsed, onToggleMobile, onT
       <aside
         className={`fixed md:static inset-y-0 left-0 z-40 w-72 ${sidebarWidthClass} transform transition-all duration-300
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-          bg-slate-950/90 border-r border-white/10 backdrop-blur-xl`}
+          bg-slate-950/90 border-r border-white/10 md:border-r-0 backdrop-blur-xl md:self-stretch md:min-h-[100dvh]`}
       >
         <div className="h-full flex flex-col p-4">
           <div className="flex items-center justify-between gap-2 px-2 py-3 border-b border-white/10 mb-4">

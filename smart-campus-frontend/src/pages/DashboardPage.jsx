@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 function DashboardPage() {
   return (
     <div className="page">
-      <h1>Module C — Incident Ticketing</h1>
+      <h1>Incident Ticketing</h1>
       <p>Manage campus maintenance and incident reports.</p>
 
       <div className="cards">

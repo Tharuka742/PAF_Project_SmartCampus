@@ -4,71 +4,83 @@ function ResourceCard({ resource, onDelete, onEdit, canManage = true }) {
   // Determine badge colors based on status
   const getStatusColor = (status) => {
     switch(status?.toLowerCase()) {
-      case 'active': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
-      case 'maintenance': return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
-      case 'out of service': return 'bg-rose-500/20 text-rose-400 border-rose-500/30';
-      default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+      case 'active': return 'bg-emerald-500/15 text-emerald-300 border-emerald-400/30';
+      case 'maintenance': return 'bg-amber-500/15 text-amber-300 border-amber-400/30';
+      case 'out of service': return 'bg-rose-500/15 text-rose-300 border-rose-400/30';
+      default: return 'bg-slate-500/15 text-slate-300 border-slate-400/30';
     }
   };
 
   return (
-    <div className="glass-card hover-scale group relative overflow-hidden flex flex-col h-full bg-slate-900/40">
-      {/* Visual Image Header */}
-      <div className="h-40 w-full overflow-hidden relative bg-slate-800">
+    <article className="glass-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-900/95 shadow-[0_10px_28px_rgba(2,6,23,0.28)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(2,6,23,0.34)]">
+      <div className="relative h-44 w-full overflow-hidden border-b border-slate-700/70 bg-slate-800">
         {resource.imageUrl ? (
-          <img 
-            src={resource.imageUrl} 
+          <img
+            src={resource.imageUrl}
             alt={resource.name}
-            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800'; }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900/50 to-slate-900">
-            <span className="text-white/20 text-5xl font-black tracking-tighter uppercase">{resource.type?.substring(0,3)}</span>
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
+            <span className="text-5xl font-black uppercase tracking-tighter text-slate-500/70">{resource.type?.substring(0,3)}</span>
           </div>
         )}
-        
-        {/* Status Badge overlay */}
-        <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-bold border backdrop-blur-md ${getStatusColor(resource.status)}`}>
-          {resource.status}
+
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/65 via-slate-950/20 to-transparent" />
+
+        <div className={`absolute right-3 top-3 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${getStatusColor(resource.status)}`}>
+          {resource.status || 'Unknown'}
         </div>
       </div>
 
-      <div className="p-5 flex flex-col flex-grow relative">
-        <div className="flex justify-between items-start mb-2">
-          <div>
-            <h3 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors duration-300">{resource.name}</h3>
-            <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">{resource.type}</span>
-          </div>
+      <div className="flex flex-grow flex-col p-6">
+        <div className="mb-4">
+          <h3 className="line-clamp-2 text-xl font-bold leading-tight text-slate-100 transition-colors duration-300 group-hover:text-cyan-300">
+            {resource.name}
+          </h3>
+          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300/85">
+            {resource.type || 'General'}
+          </p>
         </div>
 
-        <div className="space-y-3 my-4 flex-grow text-sm">
-          <div className="flex items-center gap-3 text-slate-300">
-            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-cyan-400 shrink-0">
+        <div className="flex flex-grow flex-col space-y-3 text-sm">
+          <div className="flex items-center gap-3 rounded-xl border border-slate-700/70 bg-slate-800/55 px-3 py-2.5 text-slate-200">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-500/15 text-cyan-300">
               <Users size={16} />
             </div>
-            <span>Capacity: <strong className="text-white">{resource.capacity}</strong> persons</span>
+            <span className="leading-tight">
+              <span className="text-slate-400">Capacity</span>{' '}
+              <strong className="font-semibold text-slate-100">{resource.capacity}</strong> people
+            </span>
           </div>
-          
-          <div className="flex items-center gap-3 text-slate-300">
-            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-indigo-400 shrink-0">
+
+          <div className="flex items-center gap-3 rounded-xl border border-slate-700/70 bg-slate-800/55 px-3 py-2.5 text-slate-200">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-300">
               <MapPin size={16} />
             </div>
-            <span>{resource.location}</span>
+            <span className="line-clamp-2 leading-tight">
+              <span className="text-slate-400">Location</span>{' '}
+              <strong className="font-medium text-slate-100">{resource.location || 'Not specified'}</strong>
+            </span>
           </div>
 
           {(resource.amenities || resource.description) && (
-            <div className="pt-3 border-t border-white/5">
+            <div className="mt-1 space-y-2 border-t border-slate-700/70 pt-3">
               {resource.amenities && (
-                <div className="flex items-start gap-3 text-slate-400 mb-2">
-                  <Box size={14} className="mt-1 shrink-0 text-violet-400"/>
-                  <span className="text-xs leading-relaxed">{resource.amenities}</span>
+                <div className="flex items-start gap-2.5 text-slate-300">
+                  <Box size={14} className="mt-0.5 shrink-0 text-violet-300"/>
+                  <span className="line-clamp-2 text-xs leading-relaxed">
+                    <span className="font-semibold text-slate-200">Amenities:</span> {resource.amenities}
+                  </span>
                 </div>
               )}
               {resource.description && (
-                <div className="flex items-start gap-3 text-slate-400">
-                  <Info size={14} className="mt-1 shrink-0 text-slate-500"/>
-                  <p className="text-xs leading-relaxed line-clamp-2">{resource.description}</p>
+                <div className="flex items-start gap-2.5 text-slate-300">
+                  <Info size={14} className="mt-0.5 shrink-0 text-slate-400"/>
+                  <p className="line-clamp-2 text-xs leading-relaxed">
+                    <span className="font-semibold text-slate-200">Details:</span> {resource.description}
+                  </p>
                 </div>
               )}
             </div>
@@ -76,18 +88,18 @@ function ResourceCard({ resource, onDelete, onEdit, canManage = true }) {
         </div>
 
         {canManage && (
-          <div className="flex gap-2 mt-auto pt-4">
+          <div className="mt-5 flex gap-3 border-t border-slate-700/70 pt-4">
             <button
               type="button"
               onClick={() => onEdit(resource)}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 border border-indigo-500/30 transition-colors text-sm font-semibold"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-indigo-400/35 bg-indigo-500/18 px-4 py-2.5 text-sm font-semibold text-indigo-200 transition-all hover:border-indigo-300/60 hover:bg-indigo-500/30 hover:text-white"
             >
               <Edit size={16} /> Edit
             </button>
             <button
               type="button"
               onClick={() => onDelete(resource.id)}
-              className="flex-none flex items-center justify-center w-12 rounded-xl bg-rose-500/10 hover:bg-rose-500/30 text-rose-400 border border-rose-500/20 transition-all hover:scale-105"
+              className="inline-flex w-12 items-center justify-center rounded-xl border border-rose-400/40 bg-rose-500/12 text-rose-200 transition-all hover:border-rose-300/70 hover:bg-rose-500/25 hover:text-white"
               title="Delete Resource"
             >
               <Trash2 size={16} />
@@ -95,7 +107,7 @@ function ResourceCard({ resource, onDelete, onEdit, canManage = true }) {
           </div>
         )}
       </div>
-    </div>
+    </article>
   );
 }
 

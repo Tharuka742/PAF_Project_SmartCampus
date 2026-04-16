@@ -87,7 +87,7 @@ function normalizeStatus(status) {
 
 function StatCard({ title, value, subtitle, badgeText, icon, iconWrapClass = '' }) {
   return (
-    <div className="glass-card relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.04)]">
+    <div className="glass-card relative overflow-hidden rounded-3xl p-5">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.08),transparent_40%)]" />
 
       <div className="relative flex items-start justify-between gap-4">
@@ -209,12 +209,12 @@ export default function ResourceDashboard() {
   }, [resources]);
 
   return (
-    <div className="relative w-full min-h-[100dvh] px-6 py-8 text-white md:min-h-full">
+    <div className="relative w-full min-h-full px-6 py-8 text-white">
       <div className="pointer-events-none absolute top-20 -left-24 h-[32rem] w-[32rem] rounded-full bg-cyan-700/10 blur-[140px]" />
       <div className="pointer-events-none absolute right-[-6rem] bottom-[-4rem] h-[30rem] w-[30rem] rounded-full bg-indigo-700/10 blur-[150px]" />
 
       <div className="relative mx-auto max-w-7xl space-y-6 pb-12">
-        <header className="glass-card rounded-3xl border border-white/10 p-6">
+        <header className="glass-card rounded-3xl p-6">
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
@@ -305,7 +305,7 @@ export default function ResourceDashboard() {
         </section>
 
         <section className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-          <div className="glass-card rounded-3xl border border-white/10 p-5 xl:col-span-2">
+          <div className="glass-card rounded-3xl p-5 xl:col-span-2">
             <h2 className="text-xl font-bold">Top Resources by Capacity</h2>
             <p className="mb-4 text-sm text-slate-400">High-impact spaces at a glance</p>
 
@@ -334,7 +334,7 @@ export default function ResourceDashboard() {
             </div>
           </div>
 
-          <div className="glass-card rounded-3xl border border-white/10 p-5">
+          <div className="glass-card rounded-3xl p-5">
             <h2 className="text-xl font-bold">Resource Health</h2>
             <p className="mb-4 text-sm text-slate-400">Operational status distribution</p>
 
@@ -365,7 +365,7 @@ export default function ResourceDashboard() {
         </section>
 
         <section className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-          <div className="glass-card rounded-3xl border border-white/10 p-5 xl:col-span-2">
+          <div className="glass-card rounded-3xl p-5 xl:col-span-2">
             <h2 className="text-xl font-bold">Resources by Type</h2>
             <p className="mb-4 text-sm text-slate-400">Category distribution for planning</p>
 
@@ -387,7 +387,7 @@ export default function ResourceDashboard() {
             </div>
           </div>
 
-          <div className="glass-card rounded-3xl border border-white/10 p-5">
+          <div className="glass-card rounded-3xl p-5">
             <h2 className="text-xl font-bold">Quick Insights</h2>
 
             <div className="mt-4 space-y-3 text-sm">

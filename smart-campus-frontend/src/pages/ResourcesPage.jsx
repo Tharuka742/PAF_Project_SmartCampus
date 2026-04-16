@@ -97,63 +97,74 @@ function ResourcesPage() {
   };
 
   return (
-    <div className="text-white px-6 py-10 animate-in fade-in zoom-in duration-500 flex-grow relative overflow-hidden">
+    <div className="relative min-h-full flex-grow px-6 py-10 text-white animate-in fade-in zoom-in duration-500">
       <div className="absolute top-40 left-[-20%] w-[60%] h-[60%] rounded-full bg-violet-600/5 blur-[150px] -z-10 pointer-events-none" />
       <div className="absolute bottom-20 right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/5 blur-[150px] -z-10 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto">
-        <header className="mb-10 text-center md:text-left flex flex-col md:flex-row justify-between items-end gap-4">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-500 tracking-tight mb-3">
+        <header className="mb-8 rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-sm backdrop-blur-sm md:p-7">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700">
+                Resource Management
+              </p>
+              <h1 className="mt-2 text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-indigo-600 md:text-5xl">
               Facilities & assets catalogue
-            </h1>
-            <p className="text-slate-400 text-lg max-w-2xl">
-              Resource catalogue management with CRUD for admins and read-only access for students.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              to={RESOURCE_DASHBOARD_ROUTE}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 text-slate-200 hover:bg-slate-800"
-            >
-              <ArrowLeft size={16} />
-              Back to Resource Dashboard
-            </Link>
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (showForm) {
-                    setShowForm(false);
-                    setEditingResource(null);
-                  } else {
-                    setShowForm(true);
-                    setEditingResource(null);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }
-                }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-all ${
-                  showForm
-                    ? 'bg-slate-700/70 border-white/10 text-slate-200'
-                    : 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30'
-                }`}
-              >
-                <PlusCircle size={16} />
-                {showForm ? 'Close Form' : 'Create Resource'}
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={fetchResources}
-              className="p-2 rounded-xl bg-slate-800/60 border border-white/10 text-slate-400 hover:text-white transition-colors"
-              title="Refresh"
-            >
-              <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
-            </button>
-            <div className="px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
-              <span className="text-sm font-medium text-slate-300">
-                Role <strong className="text-white uppercase">{role}</strong>
-              </span>
+              </h1>
+              <p className="mt-3 text-base leading-relaxed text-slate-600 md:text-lg">
+                Manage all campus facilities and assets in one place. Use search and filters to quickly
+                find entries, then create, edit, or review details based on your role.
+              </p>
+            </div>
+
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[23rem]">
+              <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                <Link
+                  to={RESOURCE_DASHBOARD_ROUTE}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-100 transition-colors hover:bg-slate-800"
+                >
+                  <ArrowLeft size={16} />
+                  Back to Resource Dashboard
+                </Link>
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (showForm) {
+                        setShowForm(false);
+                        setEditingResource(null);
+                      } else {
+                        setShowForm(true);
+                        setEditingResource(null);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all ${
+                      showForm
+                        ? 'border-slate-500 bg-slate-700/90 text-slate-100'
+                        : 'border-cyan-500/40 bg-cyan-500/15 text-cyan-700 hover:bg-cyan-500/25'
+                    }`}
+                  >
+                    <PlusCircle size={16} />
+                    {showForm ? 'Close Form' : 'Create Resource'}
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                <button
+                  type="button"
+                  onClick={fetchResources}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                  title="Refresh"
+                >
+                  <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                </button>
+                <div className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-indigo-500">Role</span>
+                  <strong className="text-sm uppercase text-indigo-700">{role}</strong>
+                </div>
+              </div>
             </div>
           </div>
         </header>
@@ -178,46 +189,48 @@ function ResourcesPage() {
           </div>
         )}
 
-        <div className="glass-card p-4 mb-8 flex flex-col lg:flex-row gap-4 border border-white/10">
-          <div className="flex-1 flex items-center gap-2 rounded-xl bg-slate-900/50 border border-white/10 px-3">
-            <Search size={18} className="text-slate-500 shrink-0" />
+        <section className="mb-8 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur-sm md:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-slate-300 bg-white px-3.5 shadow-sm">
+              <Search size={18} className="shrink-0 text-slate-400" />
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, location, or type..."
-              className="w-full bg-transparent py-3 text-sm text-white placeholder:text-slate-500 outline-none"
+                className="w-full bg-transparent py-3 text-sm text-slate-700 placeholder:text-slate-400 outline-none"
             />
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 text-slate-400 text-xs uppercase tracking-wider">
-              <Filter size={14} />
-              Filters
+            <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2 lg:justify-end">
+              <div className="flex items-center gap-2 px-2 text-xs uppercase tracking-wider text-slate-500">
+                <Filter size={14} />
+                Filters
+              </div>
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-cyan-400"
+              >
+                {types.map((t) => (
+                  <option key={t} value={t}>
+                    {t === 'All' ? 'All types' : t}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-cyan-400"
+              >
+                {statuses.map((s) => (
+                  <option key={s} value={s}>
+                    {s === 'All' ? 'All statuses' : s}
+                  </option>
+                ))}
+              </select>
             </div>
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="rounded-xl bg-slate-900/80 border border-white/10 text-sm text-white px-3 py-2.5 outline-none"
-            >
-              {types.map((t) => (
-                <option key={t} value={t}>
-                  {t === 'All' ? 'All types' : t}
-                </option>
-              ))}
-            </select>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-xl bg-slate-900/80 border border-white/10 text-sm text-white px-3 py-2.5 outline-none"
-            >
-              {statuses.map((s) => (
-                <option key={s} value={s}>
-                  {s === 'All' ? 'All statuses' : s}
-                </option>
-              ))}
-            </select>
           </div>
-        </div>
+        </section>
 
         {isAdmin && showForm && (
           <div className="mb-10">

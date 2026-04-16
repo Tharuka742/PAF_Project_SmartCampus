@@ -9,7 +9,7 @@ function App() {
   return (
     <Router>
       <MainLayout>
-        <div className="flex min-h-[100dvh] w-full flex-1 md:min-h-full">
+        <div className="flex min-h-full w-full flex-1">
           <Routes>
             <Route path="/" element={<Navigate to={RESOURCE_DASHBOARD_ROUTE} replace />} />
             <Route path={RESOURCE_DASHBOARD_ROUTE} element={<ResourceDashboard />} />

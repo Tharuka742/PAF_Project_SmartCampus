@@ -211,23 +211,7 @@ function AdminPanel() {
     );
   }
 
-  // ===== ERROR STATE =====
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <XCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
-          <p className="text-slate-600 mb-4">{error}</p>
-          <button
-            onClick={fetchBookings}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+  
 
   return (
     <div>

@@ -10,18 +10,7 @@ function roleHeaders(role) {
   };
 }
 
-export const getAllResources = async (role) => {
-  const response = await axios.get(API_BASE_URL, roleHeaders(role));
-  return response.data;
-};
 
-export const searchResources = async (params, role) => {
-  const response = await axios.get(`${API_BASE_URL}/search`, {
-    ...roleHeaders(role),
-    params,
-  });
-  return response.data;
-};
 
 export const createResource = async (resourceData, role) => {
   const response = await axios.post(API_BASE_URL, resourceData, roleHeaders(role));

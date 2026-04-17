@@ -67,7 +67,21 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
      * Used when UPDATING an existing booking — you don't want it
      * to conflict with itself.
      */
-        
+        @Query("{ " +
+                "'location': ?0, " +
+                "'_id': { $ne: ?4 }, " +
+                "'status': { $in: ?3 }, " +
+                "'startTime': { $lt: ?2 }, " +
+                "'endTime':   { $gt: ?1 } " +
+                "}")
+        List<Booking> findConflictingBookingsByLocationExcludingId(
+                String location,
+                LocalDateTime newStart,
+                LocalDateTime newEnd,
+                List<BookingStatus> blockingStatuses,
+                String excludeBookingId
+        );
+
     // ---------- Date-range queries (useful for analytics / calendar view) ----------
 
     /** All bookings on a resource within a date window (for calendar UI). */

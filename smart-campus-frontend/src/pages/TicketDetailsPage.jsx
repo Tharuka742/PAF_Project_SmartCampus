@@ -5,10 +5,13 @@ import StatusBadge from "../components/StatusBadge";
 import PriorityBadge from "../components/PriorityBadge";
 import SlaBadge from "../components/SlaBadge";
 
+const BACKEND_BASE_URL = "http://localhost:8081";
+
 function TicketDetailsPage() {
   const { id } = useParams();
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
+  const BACKEND_BASE_URL = "http://localhost:8081";
 
   useEffect(() => {
     getTicketById(id)
@@ -60,6 +63,31 @@ function TicketDetailsPage() {
           <p><b>Resolution Notes:</b> {ticket.resolutionNotes || "No notes yet"}</p>
           <p><b>Rejected Reason:</b> {ticket.rejectedReason || "Not rejected"}</p>
         </div>
+      </div>
+
+      <div className="attachments-section">
+        <h2>Attachments</h2>
+        {!ticket.attachments || ticket.attachments.length === 0 ? (
+          <p>No attachments uploaded.</p>
+        ) : (
+          <div className="attachment-grid">
+            {ticket.attachments.map((file, index) => (
+              <a
+                key={index}
+                href={`${BACKEND_BASE_URL}${file.fileUrl}`}
+                target="_blank"
+                rel="noreferrer"
+                className="attachment-card"
+              >
+                    <img
+                      src={`${BACKEND_BASE_URL}${file.fileUrl}`}
+                      alt={file.originalFileName}
+                    />
+                <span>{file.originalFileName}</span>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

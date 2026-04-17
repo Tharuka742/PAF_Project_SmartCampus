@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Document(collection = "tickets")
 public class Ticket {
+
     @Id
     private String id;
 
@@ -34,7 +35,5 @@ public class Ticket {
     private List<AttachmentMetadata> attachments;
 
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;   
-    
-
+    private LocalDateTime updatedAt;
 }

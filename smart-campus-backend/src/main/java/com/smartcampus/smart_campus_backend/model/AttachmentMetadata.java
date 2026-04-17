@@ -8,8 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AttachmentMetadata {
-    private String fileName;
-    private String fileType;
-    private String fileSize;
-    
+
+    private String originalFileName;
+    private String storedFileName;
+    private String contentType;
+    private long fileSize;
+    private String fileUrl;
 }

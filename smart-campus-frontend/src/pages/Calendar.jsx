@@ -19,17 +19,6 @@ import bookingService from '../services/bookingService';
 // Setup moment localizer for react-big-calendar
 const localizer = momentLocalizer(moment);
 
-// ===== COLOR MAP — unique color per resource name =====
-const RESOURCE_COLORS = {
-  'Lab': { bg: '#3b82f6', dot: '#3b82f6', light: '#eff6ff' },    // blue
-  'Lecture Hall': { bg: '#8b5cf6', dot: '#8b5cf6', light: '#f5f3ff' },    // purple
-  'Meeting Room': { bg: '#10b981', dot: '#10b981', light: '#ecfdf5' },    // green
-  'Auditorium':{ bg: '#f59e0b', dot: '#f59e0b', light: '#fffbeb' },    // amber
-  'Library Space': { bg: '#64748b', dot: '#64748b', light: '#f1f5f9'},
-  'Equipment':{ bg: '#ef4444', dot: '#ef4444', light: '#fef2f2' },    // red
-  'Open Area teater': { bg: '#a855f7', dot: '#a855f7', light: '#faf5ff' },    // violet
-  'Sports Complex':  { bg: '#ec4899', dot: '#ec4899', light: '#fdf2f8' },    // pink
-};
 
 // Fallback color for unknown resources
 const DEFAULT_COLOR = { bg: '#6366f1', dot: '#6366f1', light: '#eef2ff' };

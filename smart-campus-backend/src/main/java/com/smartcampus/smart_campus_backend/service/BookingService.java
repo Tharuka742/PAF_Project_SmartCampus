@@ -1,4 +1,5 @@
 package com.smartcampus.smart_campus_backend.service;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.smartcampus.smart_campus_backend.dto.request.BookingApprovalDTO;
@@ -46,5 +47,10 @@ public interface BookingService {
     void deleteBooking(String bookingId);
 
         
+    /** Check if a given time slot at a location has any APPROVED booking conflicts. */
+    boolean hasConflict(String location, LocalDateTime localDateTime, LocalDateTime localDateTime2);
     
+    /** suggest available time slots for a given location and date */
+    List<String> suggestSlots(String location, String date);
+
 }

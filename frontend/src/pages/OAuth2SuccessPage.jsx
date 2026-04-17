@@ -16,7 +16,7 @@ function OAuth2SuccessPage({ onAuthSuccess }) {
         }
 
         if (role === 'USER') {
-            return '/dashboard/student'
+            return '/select-role'
         }
 
         return '/select-role'

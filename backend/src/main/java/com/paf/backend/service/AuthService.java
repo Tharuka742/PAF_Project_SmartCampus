@@ -3,6 +3,7 @@ package com.paf.backend.service;
 import com.paf.backend.dto.AuthResponse;
 import com.paf.backend.dto.LoginRequest;
 import com.paf.backend.dto.RegisterRequest;
+import com.paf.backend.dto.UserAdminResponse;
 import com.paf.backend.exception.BadRequestException;
 import com.paf.backend.exception.NotFoundException;
 import com.paf.backend.exception.UnauthorizedException;
@@ -15,18 +16,23 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class AuthService {
 
-    private static final String ADMIN_ROLE_CODE = "Admin03";
-    private static final String TECHNICIAN_ROLE_CODE = "Tech03";
-
     private final AppUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+
+    @Value("${app.role.admin-code:admin123}")
+    private String adminRoleCode;
+
+    @Value("${app.role.technician-code:tech123}")
+    private String technicianRoleCode;
 
     public AuthService(AppUserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
@@ -122,13 +128,13 @@ public class AuthService {
         String normalizedCode = code == null ? "" : code.trim();
 
         if (role == Role.ADMIN) {
-            if (!ADMIN_ROLE_CODE.equalsIgnoreCase(normalizedCode)) {
+            if (!adminRoleCode.equalsIgnoreCase(normalizedCode)) {
                 throw new UnauthorizedException("Invalid admin code");
             }
         }
 
         if (role == Role.TECHNICIAN) {
-            if (!TECHNICIAN_ROLE_CODE.equalsIgnoreCase(normalizedCode)) {
+            if (!technicianRoleCode.equalsIgnoreCase(normalizedCode)) {
                 throw new UnauthorizedException("Invalid technician code");
             }
         }
@@ -139,6 +145,39 @@ public class AuthService {
         return toAuthResponse(saved);
     }
 
+    public List<UserAdminResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::toAdminUserResponse)
+                .toList();
+    }
+
+    public UserAdminResponse updateUserRole(String userId, Role role) {
+        AppUser currentUser = getCurrentUser();
+        if (currentUser.getId().equals(userId)) {
+            throw new BadRequestException("You cannot change your own role from the admin panel");
+        }
+
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        user.setRole(role);
+        user.setUpdatedAt(Instant.now());
+        return toAdminUserResponse(userRepository.save(user));
+    }
+
+    public void deleteUser(String userId) {
+        AppUser currentUser = getCurrentUser();
+        if (currentUser.getId().equals(userId)) {
+            throw new BadRequestException("You cannot delete your own account from the admin panel");
+        }
+
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("User not found");
+        }
+
+        userRepository.deleteById(userId);
+    }
+
     public void deleteCurrentUser() {
         AppUser user = getCurrentUser();
         userRepository.deleteById(user.getId());
@@ -147,5 +186,14 @@ public class AuthService {
     public AuthResponse toAuthResponse(AppUser user) {
         String token = jwtService.generateToken(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
         return new AuthResponse(token, user.getId(), user.getUsername(), user.getEmail(), user.getRole());
+    }
+
+    private UserAdminResponse toAdminUserResponse(AppUser user) {
+        return new UserAdminResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getProvider());
     }
 }

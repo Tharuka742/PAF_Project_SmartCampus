@@ -5,6 +5,8 @@ import { saveToken, updateMyRole } from '../services/auth'
 function RoleSelectionPage({ userRole, onRoleChange }) {
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
+    const [selectedRole, setSelectedRole] = useState('USER')
+    const [accessCode, setAccessCode] = useState('')
     const navigate = useNavigate()
 
     const roleRouteMap = {
@@ -13,7 +15,7 @@ function RoleSelectionPage({ userRole, onRoleChange }) {
         USER: '/dashboard/student',
     }
 
-    const selectRole = async (role) => {
+    const applyRole = async (role, code = '') => {
         if (role === 'USER') {
             setSaving(true)
             setError('')
@@ -28,16 +30,6 @@ function RoleSelectionPage({ userRole, onRoleChange }) {
             } finally {
                 setSaving(false)
             }
-            return
-        }
-
-        const code = window.prompt(
-            role === 'ADMIN'
-                ? 'Enter administrator code'
-                : 'Enter technician code',
-        )
-
-        if (!code) {
             return
         }
 
@@ -56,49 +48,130 @@ function RoleSelectionPage({ userRole, onRoleChange }) {
         }
     }
 
+    const handleRolePick = (role) => {
+        setError('')
+        setSelectedRole(role)
+        setAccessCode('')
+
+        if (role === 'USER') {
+            applyRole('USER')
+        }
+    }
+
+    const confirmPrivilegedRole = async () => {
+        const roleLabel = selectedRole === 'ADMIN' ? 'administrator' : 'technician'
+        if (!accessCode.trim()) {
+            setError(`Please enter the ${roleLabel} access code.`)
+            return
+        }
+
+        await applyRole(selectedRole, accessCode)
+    }
+
     return (
-        <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(34,197,94,0.15),transparent_30%),radial-gradient(circle_at_80%_25%,rgba(6,182,212,0.17),transparent_30%),radial-gradient(circle_at_50%_100%,rgba(30,64,175,0.14),transparent_35%)]" />
-            <div className="relative w-full max-w-2xl rounded-3xl border border-white/20 bg-white/85 p-8 shadow-[0_30px_80px_-35px_rgba(8,47,73,0.45)] backdrop-blur-xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.26em] text-cyan-700">Profile Setup</p>
-                <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">Who are you?</h1>
-                <p className="mt-2 text-sm text-slate-600">Select your role. Admin and Technician will require an access code.</p>
+        <div className="relative min-h-screen overflow-hidden bg-slate-950 px-4 py-10 text-slate-100">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_18%,rgba(16,185,129,0.22),transparent_28%),radial-gradient(circle_at_85%_14%,rgba(14,165,233,0.22),transparent_30%),radial-gradient(circle_at_50%_115%,rgba(59,130,246,0.16),transparent_34%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(15,23,42,0.15),rgba(15,23,42,0.88))]" />
 
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                    <button
-                        onClick={() => selectRole('USER')}
-                        disabled={saving}
-                        className="rounded-2xl border border-slate-300 bg-white px-4 py-4 text-left transition hover:border-cyan-300 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                        <span className="block text-sm font-semibold text-slate-900">I&apos;m Student</span>
-                        <span className="mt-1 block text-xs text-slate-500">Standard user access</span>
-                    </button>
-                    <button
-                        onClick={() => selectRole('ADMIN')}
-                        disabled={saving}
-                        className="rounded-2xl border border-slate-300 bg-white px-4 py-4 text-left transition hover:border-cyan-300 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                        <span className="block text-sm font-semibold text-slate-900">I&apos;m Administrator</span>
-                        <span className="mt-1 block text-xs text-slate-500">System management access</span>
-                    </button>
-                    <button
-                        onClick={() => selectRole('TECHNICIAN')}
-                        disabled={saving}
-                        className="rounded-2xl border border-slate-300 bg-white px-4 py-4 text-left transition hover:border-cyan-300 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                        <span className="block text-sm font-semibold text-slate-900">I&apos;m Technician</span>
-                        <span className="mt-1 block text-xs text-slate-500">Maintenance and support tools</span>
-                    </button>
-                </div>
+            <div className="relative mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-4xl items-center justify-center">
+                <div className="w-full rounded-[2rem] border border-white/10 bg-slate-900/80 p-6 shadow-[0_40px_120px_-50px_rgba(14,165,233,0.45)] backdrop-blur-xl sm:p-8">
+                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-300">Profile Setup</p>
+                    <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white">Choose your workspace</h1>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                        Students go straight to the student dashboard. Administrators and technicians must enter their access code before activation.
+                    </p>
 
-                <p className="mt-5 rounded-xl bg-slate-900/5 px-3 py-2 text-xs text-slate-600">Codes: Administrator = Admin03, Technician = Tech03</p>
-
-                <p className="mt-3 text-sm text-slate-700">Current role: <span className="font-semibold">{userRole || 'Not selected'}</span></p>
-                {error ? (
-                    <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-                        {error}
+                    <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                        <button
+                            type="button"
+                            onClick={() => handleRolePick('USER')}
+                            disabled={saving}
+                            className={`rounded-2xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60 ${selectedRole === 'USER'
+                                ? 'border-emerald-300/40 bg-emerald-400/10'
+                                : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                                }`}
+                        >
+                            <span className="block text-sm font-semibold text-white">Student</span>
+                            <span className="mt-1 block text-xs text-slate-300">Direct access to the student dashboard</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleRolePick('ADMIN')}
+                            disabled={saving}
+                            className={`rounded-2xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60 ${selectedRole === 'ADMIN'
+                                ? 'border-cyan-300/40 bg-cyan-400/10'
+                                : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                                }`}
+                        >
+                            <span className="block text-sm font-semibold text-white">Administrator</span>
+                            <span className="mt-1 block text-xs text-slate-300">Enter access code to unlock admin tools</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleRolePick('TECHNICIAN')}
+                            disabled={saving}
+                            className={`rounded-2xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60 ${selectedRole === 'TECHNICIAN'
+                                ? 'border-indigo-300/40 bg-indigo-400/10'
+                                : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                                }`}
+                        >
+                            <span className="block text-sm font-semibold text-white">Technician</span>
+                            <span className="mt-1 block text-xs text-slate-300">Enter access code to unlock maintenance tools</span>
+                        </button>
                     </div>
-                ) : null}
+
+                    <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
+                        {selectedRole === 'USER' ? (
+                            <div>
+                                <p className="text-sm font-semibold text-white">Student dashboard selected</p>
+                                <p className="mt-1 text-sm text-slate-300">You will be redirected immediately after registration or when you press Continue.</p>
+                                <div className="mt-4 flex flex-wrap gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => applyRole('USER')}
+                                        disabled={saving}
+                                        className="rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:from-emerald-300 hover:to-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                        Continue to Student Dashboard
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+                                <div>
+                                    <p className="text-sm font-semibold text-white">
+                                        {selectedRole === 'ADMIN' ? 'Administrator access code' : 'Technician access code'}
+                                    </p>
+                                    <input
+                                        value={accessCode}
+                                        onChange={(event) => setAccessCode(event.target.value)}
+                                        type="password"
+                                        placeholder="Enter access code"
+                                        className="mt-3 w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50 focus:ring-4 focus:ring-cyan-400/10"
+                                    />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={confirmPrivilegedRole}
+                                    disabled={saving}
+                                    className="rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:from-emerald-300 hover:to-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {saving ? 'Please wait...' : 'Confirm Role'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    <p className="mt-5 text-sm text-slate-300">
+                        Current role: <span className="font-semibold text-white">{userRole || 'Not selected'}</span>
+                    </p>
+
+                    {error ? (
+                        <div className="mt-3 rounded-xl border border-rose-400/20 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+                            {error}
+                        </div>
+                    ) : null}
+                </div>
             </div>
         </div>
     )

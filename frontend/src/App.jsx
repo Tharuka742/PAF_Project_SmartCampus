@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import AuthPage from './pages/AuthPage'
-import DashboardPage from './pages/DashboardPage'
+import AdminAnalyticsPage from './pages/Admin/AdminAnalyticsPage'
+import AdminDashboard from './pages/Admin/AdminDashboard'
+import AdminUsersPage from './pages/Admin/AdminUsersPage'
 import Home from './pages/Home'
 import OAuth2SuccessPage from './pages/OAuth2SuccessPage'
 import RoleSelectionPage from './pages/RoleSelectionPage'
+import StudentDashboard from './pages/Student/StudentDashboard'
+import TechnicianDashboard from './pages/Technician/TechnicianDashboard'
 import { getMe, getToken } from './services/auth'
 
 function App() {
@@ -61,21 +65,29 @@ function App() {
             <Route element={<ProtectedRoute userRole={userRole} allowedRoles={['USER']} />}>
                 <Route
                     path="/dashboard/student"
-                    element={<DashboardPage role="USER" title="Student Profile & Dashboard" />}
+                    element={<StudentDashboard />}
                 />
             </Route>
 
             <Route element={<ProtectedRoute userRole={userRole} allowedRoles={['ADMIN']} />}>
                 <Route
                     path="/dashboard/admin"
-                    element={<DashboardPage role="ADMIN" title="Administrator Dashboard" />}
+                    element={<AdminDashboard />}
+                />
+                <Route
+                    path="/dashboard/admin/users"
+                    element={<AdminUsersPage />}
+                />
+                <Route
+                    path="/dashboard/admin/analytics"
+                    element={<AdminAnalyticsPage />}
                 />
             </Route>
 
             <Route element={<ProtectedRoute userRole={userRole} allowedRoles={['TECHNICIAN']} />}>
                 <Route
                     path="/dashboard/technician"
-                    element={<DashboardPage role="TECHNICIAN" title="Technician Dashboard" />}
+                    element={<TechnicianDashboard />}
                 />
             </Route>
 

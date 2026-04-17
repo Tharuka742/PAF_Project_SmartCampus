@@ -50,3 +50,18 @@ export async function getDashboardByRole(role) {
 
     return (await api.get('/student/dashboard')).data
 }
+
+export async function getAdminUsers() {
+    const response = await api.get('/admin/users')
+    return response.data
+}
+
+export async function updateAdminUserRole(userId, role) {
+    const response = await api.patch(`/admin/users/${userId}/role`, { role })
+    return response.data
+}
+
+export async function deleteAdminUser(userId) {
+    const response = await api.delete(`/admin/users/${userId}`)
+    return response.data
+}

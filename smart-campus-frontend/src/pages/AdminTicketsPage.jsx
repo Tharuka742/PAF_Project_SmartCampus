@@ -6,6 +6,7 @@ import {
 } from "../services/ticketService";
 import StatusBadge from "../components/StatusBadge";
 import PriorityBadge from "../components/PriorityBadge";
+import SlaBadge from "../components/SlaBadge";
 
 function AdminTicketsPage() {
   const [tickets, setTickets] = useState([]);
@@ -89,6 +90,7 @@ function AdminTicketsPage() {
             <p><b>Location:</b> {ticket.resourceOrLocation}</p>
             <p><b>Status:</b> <StatusBadge status={ticket.status} /></p>
             <p><b>Priority:</b> <PriorityBadge priority={ticket.priority} /></p>
+            <p><b>SLA:</b> <SlaBadge ticket={ticket} /></p>
             <p><b>Assigned:</b> {ticket.assignedTechnicianId || "Not assigned"}</p>
 
             <div className="dashboard-actions">

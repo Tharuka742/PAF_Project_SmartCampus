@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Filter, AlertCircle, RefreshCw, Building2, PlusCircle, ArrowLeft } from 'lucide-react';
+import {
+  Search,
+  Filter,
+  AlertCircle,
+  RefreshCw,
+  Building2,
+  PlusCircle,
+  ArrowLeft,
+} from 'lucide-react';
 import ResourceCard from '../components/resources/ResourceCard';
 import ResourceForm from '../components/resources/ResourceForm';
 import {
@@ -28,7 +36,7 @@ function ResourcesPage() {
     setError(null);
     try {
       const data = await getAllResources(role);
-      setResources(data);
+      setResources(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error('Error fetching resources:', e);
       setError('Failed to load resources. Ensure the backend is running.');
@@ -46,13 +54,16 @@ function ResourcesPage() {
 
   const filtered = resources.filter((r) => {
     const q = search.trim().toLowerCase();
+
     const matchSearch =
       !q ||
       r.name?.toLowerCase().includes(q) ||
       r.location?.toLowerCase().includes(q) ||
       r.type?.toLowerCase().includes(q);
+
     const matchType = typeFilter === 'All' || r.type === typeFilter;
     const matchStatus = statusFilter === 'All' || r.status === statusFilter;
+
     return matchSearch && matchType && matchStatus;
   });
 
@@ -64,12 +75,17 @@ function ResourcesPage() {
       } else {
         await createResource(resourceData, role);
       }
+
       setShowForm(false);
       await fetchResources();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e) {
       console.error('Error saving resource:', e);
-      alert(e.response?.status === 403 ? 'Students cannot create or edit resources.' : 'Could not save resource.');
+      alert(
+        e.response?.status === 403
+          ? 'Students cannot create or edit resources.'
+          : 'Could not save resource.'
+      );
     }
   };
 
@@ -85,35 +101,48 @@ function ResourcesPage() {
   };
 
   const handleDeleteResource = async (id) => {
-    if (!window.confirm('Are you sure you want to permanently delete this resource?')) return;
+    if (!window.confirm('Are you sure you want to permanently delete this resource?')) {
+      return;
+    }
+
     try {
       await deleteResource(id, role);
       await fetchResources();
-      if (editingResource?.id === id) setEditingResource(null);
+
+      if (editingResource?.id === id) {
+        setEditingResource(null);
+      }
     } catch (e) {
       console.error('Error deleting resource:', e);
-      alert(e.response?.status === 403 ? 'Students cannot delete resources.' : 'Could not delete resource.');
+      alert(
+        e.response?.status === 403
+          ? 'Students cannot delete resources.'
+          : 'Could not delete resource.'
+      );
     }
   };
 
   return (
-    <div className="relative min-h-full flex-grow px-6 py-10 text-white animate-in fade-in zoom-in duration-500">
-      <div className="absolute top-40 left-[-20%] w-[60%] h-[60%] rounded-full bg-violet-600/5 blur-[150px] -z-10 pointer-events-none" />
-      <div className="absolute bottom-20 right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/5 blur-[150px] -z-10 pointer-events-none" />
+    <div className="relative min-h-full flex-grow px-6 py-10 text-white animate-in fade-in duration-500">
+      <div className="absolute top-40 left-[-20%] h-[60%] w-[60%] rounded-full bg-violet-600/5 blur-[150px] pointer-events-none -z-10" />
+      <div className="absolute bottom-20 right-[-10%] h-[50%] w-[50%] rounded-full bg-cyan-600/5 blur-[150px] pointer-events-none -z-10" />
 
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto max-w-7xl">
         <header className="mb-8 rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-sm backdrop-blur-sm md:p-7">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700">
                 Resource Management
               </p>
-              <h1 className="mt-2 text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-indigo-600 md:text-5xl">
-              Facilities & assets catalogue
+
+              <h1 className="mt-2 bg-gradient-to-r from-cyan-500 to-indigo-600 bg-clip-text text-4xl font-black tracking-tight text-transparent md:text-5xl">
+                Facilities &amp; assets catalogue
               </h1>
+
               <p className="mt-3 text-base leading-relaxed text-slate-600 md:text-lg">
-                Manage all campus facilities and assets in one place. Use search and filters to quickly
-                find entries, then create, edit, or review details based on your role.
+                Manage all campus facilities and assets in one place. Use search and
+                filters to quickly find entries, then create, edit, or review details
+                based on your role.
               </p>
             </div>
 
@@ -126,6 +155,7 @@ function ResourcesPage() {
                   <ArrowLeft size={16} />
                   Back to Resource Dashboard
                 </Link>
+
                 {isAdmin && (
                   <button
                     type="button"
@@ -160,8 +190,11 @@ function ResourcesPage() {
                 >
                   <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
                 </button>
+
                 <div className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-indigo-500">Role</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-indigo-500">
+                    Role
+                  </span>
                   <strong className="text-sm uppercase text-indigo-700">{role}</strong>
                 </div>
               </div>
@@ -170,13 +203,13 @@ function ResourcesPage() {
         </header>
 
         {error && (
-          <div className="glass-card p-4 mb-6 border-rose-500/30 bg-rose-500/10 flex items-center gap-3">
-            <AlertCircle size={20} className="text-rose-400 shrink-0" />
-            <p className="text-rose-300 text-sm flex-grow">{error}</p>
+          <div className="mb-6 flex items-center gap-3 rounded-xl border border-rose-300 bg-rose-50 p-4 shadow-sm">
+            <AlertCircle size={20} className="shrink-0 text-rose-600" />
+            <p className="flex-grow text-sm text-rose-700">{error}</p>
             <button
               type="button"
               onClick={fetchResources}
-              className="text-rose-400 hover:text-rose-300 text-sm font-medium underline"
+              className="text-sm font-medium text-rose-700 underline hover:text-rose-900"
             >
               Retry
             </button>
@@ -184,8 +217,10 @@ function ResourcesPage() {
         )}
 
         {!isAdmin && (
-          <div className="glass-card p-4 mb-6 border-amber-500/30 bg-amber-500/10">
-            <p className="text-amber-200 text-sm">Student mode is read-only. Create, edit, and delete actions are disabled.</p>
+          <div className="mb-6 rounded-xl border border-amber-400 bg-amber-100 px-4 py-3 shadow-sm">
+            <p className="text-sm font-semibold text-amber-900">
+              ⚠️ Student mode is read-only. Create, edit, and delete actions are disabled.
+            </p>
           </div>
         )}
 
@@ -193,19 +228,21 @@ function ResourcesPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
             <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-slate-300 bg-white px-3.5 shadow-sm">
               <Search size={18} className="shrink-0 text-slate-400" />
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name, location, or type..."
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by name, location, or type..."
                 className="w-full bg-transparent py-3 text-sm text-slate-700 placeholder:text-slate-400 outline-none"
-            />
-          </div>
+              />
+            </div>
+
             <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2 lg:justify-end">
               <div className="flex items-center gap-2 px-2 text-xs uppercase tracking-wider text-slate-500">
                 <Filter size={14} />
                 Filters
               </div>
+
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
@@ -217,6 +254,7 @@ function ResourcesPage() {
                   </option>
                 ))}
               </select>
+
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -243,19 +281,23 @@ function ResourcesPage() {
         )}
 
         {!loading && !error && resources.length === 0 ? (
-          <div className="glass-card p-12 text-center flex flex-col items-center justify-center min-h-[300px] border-dashed border-2 border-slate-700/50">
-            <div className="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center mb-4 text-slate-500">
+          <div className="glass-card flex min-h-[300px] flex-col items-center justify-center border-2 border-dashed border-slate-700/50 p-12 text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-800/50 text-slate-500">
               <Building2 size={28} aria-hidden />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No resources in the catalogue</h3>
-            <p className="text-slate-400 max-w-md">
+
+            <h3 className="mb-2 text-xl font-bold text-white">
+              No resources in the catalogue
+            </h3>
+
+            <p className="max-w-md text-slate-400">
               {isAdmin
                 ? 'Use Create Resource to add facilities or equipment.'
                 : 'An admin user can add entries to the catalogue.'}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in slide-in-from-bottom-8 duration-700">
+          <div className="grid grid-cols-1 gap-6 animate-in slide-in-from-bottom-8 duration-700 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((resource) => (
               <ResourceCard
                 key={resource.id}
@@ -269,7 +311,9 @@ function ResourcesPage() {
         )}
 
         {!loading && resources.length > 0 && filtered.length === 0 && (
-          <p className="text-center text-slate-500 text-sm py-12">No resources match your search and filters.</p>
+          <p className="py-12 text-center text-sm text-slate-500">
+            No resources match your search and filters.
+          </p>
         )}
       </div>
     </div>

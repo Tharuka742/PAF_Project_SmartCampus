@@ -407,7 +407,7 @@ function NewBooking() {
               </div>
 
             </form>
-
+            
           </div>
         </div>
       </div>

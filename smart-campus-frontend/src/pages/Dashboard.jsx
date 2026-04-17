@@ -202,7 +202,14 @@ function Dashboard() {
         </div>
       </div>
 
-      
+      {/* ===== BOTTOM SECTION: Recent Bookings + Resource Utilization ===== */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Recent Bookings — 3 columns */}
+        <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Clock className="w-5 h-5 text-slate-400" />
+            <h3 className="font-semibold text-slate-900">Recent Bookings</h3>
+          </div>
 
           {recentBookings.length === 0 ? (
             <div className="text-center py-8">

@@ -1,53 +1,109 @@
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import { useState } from "react";
+import {
+  LayoutDashboard,
+  PlusCircle,
+  Ticket,
+  ClipboardList,
+  ShieldCheck,
+  UserCheck,
+  Bell,
+  ChevronLeft,
+  ChevronRight,
+  Wrench,
+} from "lucide-react";
+
 import DashboardPage from "./pages/DashboardPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
 import MyTicketsPage from "./pages/MyTicketsPage";
 import AllTicketsPage from "./pages/AllTicketsPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 import "./App.css";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  const navClass = ({ isActive }) =>
+    isActive ? "nav-link active" : "nav-link";
+
   return (
     <BrowserRouter>
-      <div className={`layout ${sidebarOpen ? "" : "sidebar-collapsed"} min-h-screen bg-slate-50`}>
+      <div className={`layout ${sidebarOpen ? "" : "sidebar-collapsed"}`}>
         <aside className="sidebar">
           <button
-            className="toggle-btn hover:bg-slate-700 focus:outline-none"
+            className="toggle-btn"
             onClick={() => setSidebarOpen(!sidebarOpen)}
             aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
-            {sidebarOpen ? (
-              <svg viewBox="0 0 24 24" className="toggle-icon" aria-hidden="true">
-                <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" className="toggle-icon" aria-hidden="true">
-                <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )}
+            {sidebarOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
           </button>
 
           {sidebarOpen && (
             <>
-              <p className="overview">Overview</p>
-              <h2>Dashboard</h2>
+              <div className="brand-box">
+                <div className="brand-icon">
+                  <Wrench size={22} />
+                </div>
+                <div>
+                  <h3>Smart Campus</h3>
+                  <p>Incident Ticketing</p>
+                </div>
+              </div>
 
-              <p className="section-title">Tickets</p>
+              <p className="section-title">Navigation</p>
 
-              <NavLink end to="/tickets" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-                <span>All Tickets</span>
+              <NavLink end to="/" className={navClass}>
+                <span className="nav-left">
+                  <LayoutDashboard size={18} />
+                  Dashboard
+                </span>
               </NavLink>
 
-              <NavLink end to="/tickets/create" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-                <span>Create Ticket</span>
+              <NavLink end to="/tickets/create" className={navClass}>
+                <span className="nav-left">
+                  <PlusCircle size={18} />
+                  Create Ticket
+                </span>
               </NavLink>
 
-              <NavLink end to="/tickets/my" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-                <span>My Tickets</span>
+              <NavLink end to="/tickets/my" className={navClass}>
+                <span className="nav-left">
+                  <Ticket size={18} />
+                  My Tickets
+                </span>
               </NavLink>
 
+              <p className="section-title">Management</p>
+
+              <NavLink end to="/tickets" className={navClass}>
+                <span className="nav-left">
+                  <ClipboardList size={18} />
+                  All Tickets
+                </span>
+              </NavLink>
+
+              <NavLink end to="/admin/dashboard" className={navClass}>
+                <span className="nav-left">
+                  <ShieldCheck size={18} />
+                  Admin Dashboard
+                </span>
+              </NavLink>
+
+              <NavLink end to="/technician/tickets" className={navClass}>
+                <span className="nav-left">
+                  <UserCheck size={18} />
+                  Technician
+                </span>
+              </NavLink>
+
+              <p className="section-title">Updates</p>
+
+              <div className="other-link">
+                <span className="nav-left">
+                  <Bell size={18} />
+                  Notifications
+                </span>
+              </div>
             </>
           )}
         </aside>
@@ -58,6 +114,7 @@ function App() {
             <Route path="/tickets" element={<AllTicketsPage />} />
             <Route path="/tickets/create" element={<CreateTicketPage />} />
             <Route path="/tickets/my" element={<MyTicketsPage />} />
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           </Routes>
         </main>
       </div>

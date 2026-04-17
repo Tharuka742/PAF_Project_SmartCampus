@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.smartcampus.smart_campus_backend.model.AvailabilityWindow;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -29,7 +30,11 @@ public class ResourceUpdateRequest {
     private String status;
 
     private String description;
+
     private String imageUrl;
-    private String amenities;
+
+    private List<String> amenities;
+
+    @Valid
     private List<AvailabilityWindow> availabilityWindows;
 }

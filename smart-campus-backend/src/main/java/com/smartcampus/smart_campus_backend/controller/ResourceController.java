@@ -4,16 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.smartcampus.smart_campus_backend.dto.resource.ResourceCreateRequest;
@@ -37,12 +28,19 @@ public class ResourceController {
             @Valid @RequestBody ResourceCreateRequest request) {
         requireAdmin(role);
         Resource created = resourceService.createResource(request);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping
-    public ResponseEntity<List<Resource>> getAllResources() {
-        return ResponseEntity.ok(resourceService.getAllResources());
+    public ResponseEntity<List<Resource>> getResources(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) Integer capacity,
+            @RequestParam(required = false) String status) {
+
+        return ResponseEntity.ok(
+                resourceService.getResources(type, location, capacity, status)
+        );
     }
 
     @GetMapping("/{id}")
@@ -68,17 +66,12 @@ public class ResourceController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<Resource>> searchResources(
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String location,
-            @RequestParam(required = false) String status) {
-        return ResponseEntity.ok(resourceService.searchResources(type, location, status));
-    }
-
     private void requireAdmin(String role) {
-        if (!"admin".equalsIgnoreCase(role == null ? "" : role.trim())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin users can modify resources");
+        if (role == null || !role.trim().equalsIgnoreCase("admin")) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Only admin users can modify resources"
+            );
         }
     }
 }

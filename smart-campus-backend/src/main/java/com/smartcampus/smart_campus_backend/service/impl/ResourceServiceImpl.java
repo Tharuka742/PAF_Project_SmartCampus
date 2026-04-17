@@ -40,8 +40,22 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public List<Resource> getAllResources() {
-        return resourceRepository.findAll();
+    public List<Resource> getResources(String type, String location, Integer capacity, String status) {
+        boolean hasType = type != null && !type.isBlank();
+        boolean hasLocation = location != null && !location.isBlank();
+        boolean hasCapacity = capacity != null;
+        boolean hasStatus = status != null && !status.isBlank();
+
+        if (!hasType && !hasLocation && !hasCapacity && !hasStatus) {
+            return resourceRepository.findAll();
+        }
+
+        return resourceRepository.findAll().stream()
+                .filter(resource -> !hasType || resource.getType().equalsIgnoreCase(type))
+                .filter(resource -> !hasLocation || resource.getLocation().toLowerCase().contains(location.toLowerCase()))
+                .filter(resource -> !hasCapacity || resource.getCapacity() >= capacity)
+                .filter(resource -> !hasStatus || resource.getStatus().equalsIgnoreCase(status))
+                .toList();
     }
 
     @Override
@@ -72,19 +86,5 @@ public class ResourceServiceImpl implements ResourceService {
     public void deleteResource(String id) {
         Resource resource = getResourceById(id);
         resourceRepository.delete(resource);
-    }
-
-    @Override
-    public List<Resource> searchResources(String type, String location, String status) {
-        if (type != null && !type.isBlank()) {
-            return resourceRepository.findByTypeIgnoreCase(type);
-        }
-        if (location != null && !location.isBlank()) {
-            return resourceRepository.findByLocationContainingIgnoreCase(location);
-        }
-        if (status != null && !status.isBlank()) {
-            return resourceRepository.findByStatusIgnoreCase(status);
-        }
-        return resourceRepository.findAll();
     }
 }

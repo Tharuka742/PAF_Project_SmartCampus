@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Search,
   Filter,
@@ -8,38 +8,51 @@ import {
   Building2,
   PlusCircle,
   ArrowLeft,
-} from 'lucide-react';
-import ResourceCard from '../components/resources/ResourceCard';
-import ResourceForm from '../components/resources/ResourceForm';
+} from "lucide-react";
+import ResourceCard from "../components/resources/ResourceCard";
+import ResourceForm from "../components/resources/ResourceForm";
 import {
-  getAllResources,
+  getResources,
   createResource,
   updateResource,
   deleteResource,
-} from '../services/resourceService';
-import { useRole } from '../context/RoleContext';
-import { RESOURCE_DASHBOARD_ROUTE } from '../config/navigation';
+} from "../services/resourceService";
+import { useRole } from "../context/RoleContext";
+import { RESOURCE_DASHBOARD_ROUTE } from "../config/navigation";
 
 function ResourcesPage() {
   const { role, isAdmin } = useRole();
+
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [editingResource, setEditingResource] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
+
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [capacityFilter, setCapacityFilter] = useState("");
 
   const fetchResources = async () => {
     setLoading(true);
     setError(null);
+
     try {
-      const data = await getAllResources(role);
+      const data = await getResources(
+        {
+          type: typeFilter !== "All" ? typeFilter : "",
+          status: statusFilter !== "All" ? statusFilter : "",
+          capacity: capacityFilter || "",
+        },
+        role
+      );
+
       setResources(Array.isArray(data) ? data : []);
     } catch (e) {
-      console.error('Error fetching resources:', e);
-      setError('Failed to load resources. Ensure the backend is running.');
+      console.error("Error fetching resources:", e);
+      setError("Failed to load resources. Ensure the backend is running.");
     } finally {
       setLoading(false);
     }
@@ -47,25 +60,29 @@ function ResourcesPage() {
 
   useEffect(() => {
     fetchResources();
-  }, [role]);
+  }, [role, typeFilter, statusFilter, capacityFilter]);
 
-  const types = ['All', ...new Set(resources.map((r) => r.type).filter(Boolean))];
-  const statuses = ['All', 'Active', 'Maintenance', 'Out of Service'];
+  const types = useMemo(
+    () => ["All", ...new Set(resources.map((r) => r.type).filter(Boolean))],
+    [resources]
+  );
 
-  const filtered = resources.filter((r) => {
+  const statuses = ["All", "ACTIVE", "OUT_OF_SERVICE"];
+
+  const filteredResources = useMemo(() => {
     const q = search.trim().toLowerCase();
 
-    const matchSearch =
-      !q ||
-      r.name?.toLowerCase().includes(q) ||
-      r.location?.toLowerCase().includes(q) ||
-      r.type?.toLowerCase().includes(q);
+    if (!q) return resources;
 
-    const matchType = typeFilter === 'All' || r.type === typeFilter;
-    const matchStatus = statusFilter === 'All' || r.status === statusFilter;
-
-    return matchSearch && matchType && matchStatus;
-  });
+    return resources.filter((r) => {
+      return (
+        r.name?.toLowerCase().includes(q) ||
+        r.location?.toLowerCase().includes(q) ||
+        r.type?.toLowerCase().includes(q) ||
+        r.description?.toLowerCase().includes(q)
+      );
+    });
+  }, [resources, search]);
 
   const handleSaveResource = async (resourceData) => {
     try {
@@ -78,13 +95,13 @@ function ResourcesPage() {
 
       setShowForm(false);
       await fetchResources();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (e) {
-      console.error('Error saving resource:', e);
+      console.error("Error saving resource:", e);
       alert(
         e.response?.status === 403
-          ? 'Students cannot create or edit resources.'
-          : 'Could not save resource.'
+          ? "Students cannot create or edit resources."
+          : "Could not save resource."
       );
     }
   };
@@ -92,7 +109,7 @@ function ResourcesPage() {
   const handleEditResource = (resource) => {
     setEditingResource(resource);
     setShowForm(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleCancelEdit = () => {
@@ -101,7 +118,7 @@ function ResourcesPage() {
   };
 
   const handleDeleteResource = async (id) => {
-    if (!window.confirm('Are you sure you want to permanently delete this resource?')) {
+    if (!window.confirm("Are you sure you want to permanently delete this resource?")) {
       return;
     }
 
@@ -113,11 +130,11 @@ function ResourcesPage() {
         setEditingResource(null);
       }
     } catch (e) {
-      console.error('Error deleting resource:', e);
+      console.error("Error deleting resource:", e);
       alert(
         e.response?.status === 403
-          ? 'Students cannot delete resources.'
-          : 'Could not delete resource.'
+          ? "Students cannot delete resources."
+          : "Could not delete resource."
       );
     }
   };
@@ -166,17 +183,17 @@ function ResourcesPage() {
                       } else {
                         setShowForm(true);
                         setEditingResource(null);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       }
                     }}
                     className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all ${
                       showForm
-                        ? 'border-slate-500 bg-slate-700/90 text-slate-100'
-                        : 'border-cyan-500/40 bg-cyan-500/15 text-cyan-700 hover:bg-cyan-500/25'
+                        ? "border-slate-500 bg-slate-700/90 text-slate-100"
+                        : "border-cyan-500/40 bg-cyan-500/15 text-cyan-700 hover:bg-cyan-500/25"
                     }`}
                   >
                     <PlusCircle size={16} />
-                    {showForm ? 'Close Form' : 'Create Resource'}
+                    {showForm ? "Close Form" : "Create Resource"}
                   </button>
                 )}
               </div>
@@ -188,7 +205,7 @@ function ResourcesPage() {
                   className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
                   title="Refresh"
                 >
-                  <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                  <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
                 </button>
 
                 <div className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5">
@@ -232,7 +249,7 @@ function ResourcesPage() {
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by name, location, or type..."
+                placeholder="Search by name, location, type, or description..."
                 className="w-full bg-transparent py-3 text-sm text-slate-700 placeholder:text-slate-400 outline-none"
               />
             </div>
@@ -250,7 +267,7 @@ function ResourcesPage() {
               >
                 {types.map((t) => (
                   <option key={t} value={t}>
-                    {t === 'All' ? 'All types' : t}
+                    {t === "All" ? "All types" : t}
                   </option>
                 ))}
               </select>
@@ -262,10 +279,19 @@ function ResourcesPage() {
               >
                 {statuses.map((s) => (
                   <option key={s} value={s}>
-                    {s === 'All' ? 'All statuses' : s}
+                    {s === "All" ? "All statuses" : s}
                   </option>
                 ))}
               </select>
+
+              <input
+                type="number"
+                min="1"
+                value={capacityFilter}
+                onChange={(e) => setCapacityFilter(e.target.value)}
+                placeholder="Min capacity"
+                className="w-32 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-cyan-400"
+              />
             </div>
           </div>
         </section>
@@ -292,13 +318,13 @@ function ResourcesPage() {
 
             <p className="max-w-md text-slate-400">
               {isAdmin
-                ? 'Use Create Resource to add facilities or equipment.'
-                : 'An admin user can add entries to the catalogue.'}
+                ? "Use Create Resource to add facilities or equipment."
+                : "An admin user can add entries to the catalogue."}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 animate-in slide-in-from-bottom-8 duration-700 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((resource) => (
+            {filteredResources.map((resource) => (
               <ResourceCard
                 key={resource.id}
                 resource={resource}
@@ -310,7 +336,7 @@ function ResourcesPage() {
           </div>
         )}
 
-        {!loading && resources.length > 0 && filtered.length === 0 && (
+        {!loading && resources.length > 0 && filteredResources.length === 0 && (
           <p className="py-12 text-center text-sm text-slate-500">
             No resources match your search and filters.
           </p>

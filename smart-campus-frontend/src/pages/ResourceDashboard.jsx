@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import {
   Activity,
   ArrowLeft,
@@ -10,7 +10,7 @@ import {
   RefreshCw,
   Wrench,
   XCircle,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -23,77 +23,63 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts';
-import { getAllResources } from '../services/resourceService';
-import { useRole } from '../context/RoleContext';
+} from "recharts";
+import { getResources } from "../services/resourceService";
+import { useRole } from "../context/RoleContext";
 import {
   MAIN_DASHBOARD_ROUTE,
   RESOURCE_CATALOGUE_ROUTE,
-} from '../config/navigation';
+} from "../config/navigation";
 
-const CHART_COLORS = ['#22d3ee', '#6366f1', '#a78bfa', '#34d399', '#f59e0b', '#fb7185'];
+const CHART_COLORS = [
+  "#22d3ee",
+  "#6366f1",
+  "#a78bfa",
+  "#34d399",
+  "#f59e0b",
+  "#fb7185",
+];
 
 const STATUS_THEME = {
   active: {
-    label: 'active',
-    iconWrap: 'bg-cyan-500/10 text-cyan-300',
+    label: "active",
+    iconWrap: "bg-cyan-500/10 text-cyan-300",
   },
   maintenance: {
-    label: 'pending review',
-    iconWrap: 'bg-amber-500/10 text-amber-300',
+    label: "pending review",
+    iconWrap: "bg-amber-500/10 text-amber-300",
   },
   outOfService: {
-    label: 'need attention',
-    iconWrap: 'bg-rose-500/10 text-rose-300',
+    label: "need attention",
+    iconWrap: "bg-rose-500/10 text-rose-300",
   },
   total: {
-    label: 'overview',
-    iconWrap: 'bg-cyan-500/10 text-cyan-300',
+    label: "overview",
+    iconWrap: "bg-cyan-500/10 text-cyan-300",
   },
 };
 
 function normalizeStatus(status) {
-  const value = String(status || '').trim().toLowerCase();
+  const value = String(status || "").trim().toUpperCase();
 
-  if (
-    value === 'active' ||
-    value === 'available' ||
-    value === 'operational' ||
-    value === 'in use'
-  ) {
-    return 'active';
+  if (value === "ACTIVE") {
+    return "active";
   }
 
-  if (
-    value === 'maintenance' ||
-    value === 'under maintenance' ||
-    value === 'pending maintenance'
-  ) {
-    return 'maintenance';
+  if (value === "OUT_OF_SERVICE") {
+    return "outOfService";
   }
 
-  if (
-    value === 'out of service' ||
-    value === 'out-of-service' ||
-    value === 'unavailable' ||
-    value === 'inactive' ||
-    value === 'disabled'
-  ) {
-    return 'outOfService';
-  }
-
-  return 'unknown';
+  return "unknown";
 }
 
-function StatCard({ title, value, subtitle, badgeText, icon, iconWrapClass = '' }) {
+function StatCard({ title, value, subtitle, badgeText, icon, iconWrapClass = "" }) {
   return (
     <div className="glass-card relative overflow-hidden rounded-3xl p-5">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.08),transparent_40%)]" />
 
       <div className="relative flex items-start justify-between gap-4">
-        <div className={`rounded-2xl p-3 ${iconWrapClass}`}>
-          {icon}
-        </div>
+        <div className={`rounded-2xl p-3 ${iconWrapClass}`}>{icon}</div>
 
         {badgeText ? (
           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium tracking-wide text-slate-200">
@@ -130,14 +116,15 @@ export default function ResourceDashboard() {
   const { role } = useRole();
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const loadResources = useCallback(async () => {
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await getAllResources(role);
+      const response = await getResources({}, role);
+
       const safeData = Array.isArray(response)
         ? response
         : Array.isArray(response?.data)
@@ -146,9 +133,9 @@ export default function ResourceDashboard() {
 
       setResources(safeData);
     } catch (err) {
-      console.error('Dashboard load failed:', err);
+      console.error("Dashboard load failed:", err);
       setResources([]);
-      setError('Unable to load resource analytics. Please try again.');
+      setError("Unable to load resource analytics. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -170,19 +157,19 @@ export default function ResourceDashboard() {
 
     safeResources.forEach((resource) => {
       const status = normalizeStatus(resource?.status);
-      const type = resource?.type?.trim() || 'Other';
+      const type = resource?.type?.trim() || "Other";
 
-      if (status === 'active') active += 1;
-      if (status === 'maintenance') maintenance += 1;
-      if (status === 'outOfService') outOfService += 1;
+      if (status === "active") active += 1;
+      if (status === "maintenance") maintenance += 1;
+      if (status === "outOfService") outOfService += 1;
 
       typeMap[type] = (typeMap[type] || 0) + 1;
     });
 
     const statusData = [
-      { name: 'Active', value: active },
-      { name: 'Maintenance', value: maintenance },
-      { name: 'Out of Service', value: outOfService },
+      { name: "Active", value: active },
+      { name: "Under Maintenance", value: maintenance },
+      { name: "Out of Service", value: outOfService },
     ].filter((item) => item.value > 0);
 
     const typeData = Object.entries(typeMap)
@@ -193,7 +180,7 @@ export default function ResourceDashboard() {
       .sort((a, b) => (Number(b?.capacity) || 0) - (Number(a?.capacity) || 0))
       .slice(0, 6)
       .map((resource) => ({
-        name: resource?.name || 'Unnamed',
+        name: resource?.name || "Unnamed",
         capacity: Number(resource?.capacity) || 0,
       }));
 
@@ -241,7 +228,7 @@ export default function ResourceDashboard() {
                 onClick={loadResources}
                 className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-slate-900/80 px-4 py-2 text-slate-200 transition-colors hover:bg-slate-800"
               >
-                <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
                 Refresh
               </button>
 
@@ -314,12 +301,12 @@ export default function ResourceDashboard() {
                 <BarChart data={stats.topCapacity}>
                   <XAxis
                     dataKey="name"
-                    tick={{ fill: '#94a3b8', fontSize: 11 }}
+                    tick={{ fill: "#94a3b8", fontSize: 11 }}
                     interval={0}
                     angle={-12}
                     height={50}
                   />
-                  <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                  <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} />
                   <Tooltip content={<CustomTooltip />} />
                   <Bar dataKey="capacity" radius={[10, 10, 0, 0]}>
                     {stats.topCapacity.map((_, index) => (
@@ -372,8 +359,8 @@ export default function ResourceDashboard() {
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={stats.typeData}>
-                  <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                  <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                  <XAxis dataKey="name" tick={{ fill: "#94a3b8", fontSize: 11 }} />
+                  <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} />
                   <Tooltip content={<CustomTooltip />} />
                   <Area
                     type="monotone"

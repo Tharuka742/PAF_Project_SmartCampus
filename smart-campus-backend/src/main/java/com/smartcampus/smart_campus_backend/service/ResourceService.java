@@ -8,9 +8,12 @@ import com.smartcampus.smart_campus_backend.model.Resource;
 
 public interface ResourceService {
     Resource createResource(ResourceCreateRequest request);
-    List<Resource> getAllResources();
+
+    List<Resource> getResources(String type, String location, Integer capacity, String status);
+
     Resource getResourceById(String id);
+
     Resource updateResource(String id, ResourceUpdateRequest request);
+
     void deleteResource(String id);
-    List<Resource> searchResources(String type, String location, String status);
 }

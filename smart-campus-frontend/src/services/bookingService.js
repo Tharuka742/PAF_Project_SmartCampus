@@ -9,7 +9,17 @@ const bookingService = {
     return response.data;
   },
 
-  
+  // Get current user's bookings
+  getMyBookings: async () => {
+    const response = await api.get('/bookings/me');
+    return response.data;
+  },
+
+  // Get single booking
+  getBookingById: async (id) => {
+    const response = await api.get(`/bookings/${id}`);
+    return response.data;
+  },
 
   // Update booking
   updateBooking: async (id, data) => {

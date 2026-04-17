@@ -193,18 +193,6 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList());
     }
 
-    // ================= ADMIN =================
-
-    @Override
-    public List<BookingResponseDTO> getAllBookings(BookingStatus statusFilter) {
-        List<Booking> bookings = (statusFilter != null)
-                ? bookingRepository.findByStatus(statusFilter)
-                : bookingRepository.findAll();
-
-        return bookings.stream()
-                .map(bookingMapper::toResponse)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public BookingResponseDTO approveBooking(String bookingId, BookingApprovalDTO dto, String adminId) {

@@ -13,9 +13,9 @@
     </parent>
 
     <groupId>com.paf</groupId>
-    <artifactId>backend</artifactId>
+    <artifactId>smart-campus-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>backend</name>
+    <name>smart-campus-backend</name>
     <description>PAF Project Backend</description>
 
     <properties>

@@ -13,10 +13,10 @@
     </parent>
 
     <groupId>com.paf</groupId>
-    <artifactId>backend</artifactId>
+    <artifactId>smart-campus-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>backend</name>
-    <description>PAF Project Backend</description>
+    <name>smart-campus-backend</name>
+    <description>Smart Campus Backend</description>
 
     <properties>
         <java.version>21</java.version>

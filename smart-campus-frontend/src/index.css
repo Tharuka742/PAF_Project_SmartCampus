@@ -1,3 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import 'react-big-calendar/lib/css/react-big-calendar.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  :root {
+    --background: 216 29% 97%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 222 47% 11%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 215 37% 94%;
+    --secondary-foreground: 222 47% 20%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 222 47% 11%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 214 32% 91%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 47% 18%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 40% 20%;
+    --sidebar-ring: 25 95% 53%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(222, 47%, 11%), hsl(25, 95%, 53%));
+    --shadow-card: 0 1px 3px 0 hsl(222 47% 11% / 0.06), 0 1px 2px -1px hsl(222 47% 11% / 0.06);
+    --shadow-elevated: 0 4px 16px -2px hsl(222 47% 11% / 0.08), 0 2px 6px -2px hsl(222 47% 11% / 0.04);
+    --shadow-hover: 0 8px 24px -4px hsl(25 95% 53% / 0.12), 0 4px 10px -4px hsl(222 47% 11% / 0.06);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .card-shadow {
+    box-shadow: var(--shadow-card);
+  }
+  .card-shadow-hover {
+    box-shadow: var(--shadow-hover);
+  }
+  .elevated-shadow {
+    box-shadow: var(--shadow-elevated);
+  }
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+}
+
+/* ===== react-big-calendar custom styles ===== */
+
+.rbc-calendar {
+  font-family: inherit;
+}
+.rbc-header {
+  padding: 8px 4px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+.rbc-header + .rbc-header {
+  border-left: 1px solid #f1f5f9 !important;
+}
+.rbc-month-view {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.rbc-month-row + .rbc-month-row {
+  border-top: 1px solid #f1f5f9 !important;
+}
+.rbc-day-bg + .rbc-day-bg {
+  border-left: 1px solid #f1f5f9 !important;
+}
+.rbc-off-range-bg {
+  background-color: #f8fafc !important;
+}
+.rbc-today {
+  background-color: #eff6ff !important;
+}
+.rbc-date-cell {
+  padding: 4px 8px;
+  font-size: 13px;
+  color: #64748b;
+}
+.rbc-date-cell.rbc-now {
+  font-weight: 700;
+  color: #3b82f6;
+}
+.rbc-event {
+  border: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.rbc-event:hover {
+  opacity: 0.9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+.rbc-event-label {
+  font-size: 11px;
+}
+.rbc-event-content {
+  font-size: 12px;
+  font-weight: 500;
+}
+.rbc-show-more {
+  color: #3b82f6;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Time grid (week view) */
+.rbc-time-view {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.rbc-time-header-content {
+  border-left: 1px solid #f1f5f9 !important;
+}
+.rbc-timeslot-group {
+  border-bottom: 1px solid #f8fafc !important;
+}
+.rbc-time-slot {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.rbc-time-content {
+  border-top: 1px solid #e2e8f0 !important;
+}
+.rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid #f8fafc !important;
+}
+.rbc-current-time-indicator {
+  background-color: #ef4444;
+  height: 2px;
+}
+
+/* Selection styling (click empty slot) */
+.rbc-slot-selection {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  border-radius: 4px;
+}
+
+/* Popup overlay for +more */
+.rbc-overlay {
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e2e8f0;
+  padding: 8px;
+}
+.rbc-overlay-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
 @import "tailwindcss";
 
 @layer base {

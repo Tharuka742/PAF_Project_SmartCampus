@@ -22,7 +22,4 @@ public interface ResourceRepository extends MongoRepository<Resource, String> {
     List<Resource> findByTypeIgnoreCase(String type);
     List<Resource> findByLocationContainingIgnoreCase(String location);
     List<Resource> findByStatusIgnoreCase(String status);
-
-@Repository
-public interface ResourceRepository extends MongoRepository<Resource, String> {
 }

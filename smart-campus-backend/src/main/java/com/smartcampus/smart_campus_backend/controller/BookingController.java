@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,12 +36,11 @@ public class BookingController {
 
     private final BookingService bookingService;
 
-    private ResponseEntity<ApiResponse<?>> unauthorized() {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error("User not authenticated"));
-    }
-
-    // ================= CONFLICT API =================
+    // Dev-mode user identity — no auth wired in.
+    private static final String DEV_USER_ID = "dev-user";
+    private static final String DEV_USER_NAME = "Dev User";
+    private static final String DEV_USER_EMAIL = "dev@smartcampus.local";
+    private static final boolean DEV_IS_ADMIN = true;
 
     @GetMapping("/check-conflict")
     public boolean checkConflict(
@@ -59,9 +55,6 @@ public class BookingController {
         );
     }
 
-
-    // ================= SUGGESTION API =================
-
     @GetMapping("/suggest-slots")
     public List<String> suggestSlots(
             @RequestParam String location,
@@ -70,143 +63,76 @@ public class BookingController {
         return bookingService.suggestSlots(location, date);
     }
 
-
     // ================= USER =================
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<?> createBooking(
-            @Valid @RequestBody BookingRequestDTO request,
-            @AuthenticationPrincipal OidcUser principal) {
-
-        if (principal == null) return unauthorized();
-
-        String userId    = principal.getSubject();
-        String userEmail = principal.getEmail();
-        String userName  = principal.getFullName();
-
-        // 🔥 DEBUG LOG (optional)
-        System.out.println("Creating booking: " + request);
-
+    public ResponseEntity<?> createBooking(@Valid @RequestBody BookingRequestDTO request) {
         BookingResponseDTO created =
-                bookingService.createBooking(request, userId, userName, userEmail);
-
+                bookingService.createBooking(request, DEV_USER_ID, DEV_USER_NAME, DEV_USER_EMAIL);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Booking created successfully", created));
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<?> getMyBookings(
-            @AuthenticationPrincipal OidcUser principal) {
-
-        if (principal == null) return unauthorized();
-
-        List<BookingResponseDTO> mine =
-                bookingService.getMyBookings(principal.getSubject());
-
+    public ResponseEntity<?> getMyBookings() {
+        List<BookingResponseDTO> mine = bookingService.getMyBookings(DEV_USER_ID);
         return ResponseEntity.ok(ApiResponse.success("My bookings retrieved", mine));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<?> getBookingById(
-            @PathVariable String id,
-            @AuthenticationPrincipal OidcUser principal) {
-
-        if (principal == null) return unauthorized();
-
-        boolean isAdmin = principal.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
+    public ResponseEntity<?> getBookingById(@PathVariable String id) {
         BookingResponseDTO booking =
-                bookingService.getBookingById(id, principal.getSubject(), isAdmin);
-
+                bookingService.getBookingById(id, DEV_USER_ID, DEV_IS_ADMIN);
         return ResponseEntity.ok(ApiResponse.success("Booking retrieved", booking));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> updateBooking(
             @PathVariable String id,
-            @Valid @RequestBody BookingUpdateDTO update,
-            @AuthenticationPrincipal OidcUser principal) {
-
-        if (principal == null) return unauthorized();
-
+            @Valid @RequestBody BookingUpdateDTO update) {
         BookingResponseDTO updated =
-                bookingService.updateBooking(id, update, principal.getSubject());
-
+                bookingService.updateBooking(id, update, DEV_USER_ID);
         return ResponseEntity.ok(ApiResponse.success("Booking updated", updated));
     }
 
     @PatchMapping("/{id}/cancel")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> cancelBooking(
             @PathVariable String id,
-            @RequestBody(required = false) BookingApprovalDTO dto,
-            @AuthenticationPrincipal OidcUser principal) {
-
-        if (principal == null) return unauthorized();
-
+            @RequestBody(required = false) BookingApprovalDTO dto) {
         BookingResponseDTO cancelled =
-                bookingService.cancelBooking(id, dto, principal.getSubject());
-
+                bookingService.cancelBooking(id, dto, DEV_USER_ID);
         return ResponseEntity.ok(ApiResponse.success("Booking cancelled", cancelled));
     }
 
     // ================= ADMIN =================
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllBookings(
-            @RequestParam(required = false) BookingStatus status,
-            @AuthenticationPrincipal OidcUser principal) {
-
-        if (principal == null) return unauthorized();
-
+            @RequestParam(required = false) BookingStatus status) {
         List<BookingResponseDTO> all = bookingService.getAllBookings(status);
         return ResponseEntity.ok(ApiResponse.success("Bookings retrieved", all));
     }
 
     @PatchMapping("/{id}/approve")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> approveBooking(
             @PathVariable String id,
-            @RequestBody(required = false) BookingApprovalDTO dto,
-            @AuthenticationPrincipal OidcUser principal) {
-
-        if (principal == null) return unauthorized();
-
+            @RequestBody(required = false) BookingApprovalDTO dto) {
         BookingResponseDTO approved =
-                bookingService.approveBooking(id, dto, principal.getSubject());
-
+                bookingService.approveBooking(id, dto, DEV_USER_ID);
         return ResponseEntity.ok(ApiResponse.success("Booking approved", approved));
     }
 
     @PatchMapping("/{id}/reject")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> rejectBooking(
             @PathVariable String id,
-            @Valid @RequestBody BookingApprovalDTO dto,
-            @AuthenticationPrincipal OidcUser principal) {
-
-        if (principal == null) return unauthorized();
-
+            @Valid @RequestBody BookingApprovalDTO dto) {
         BookingResponseDTO rejected =
-                bookingService.rejectBooking(id, dto, principal.getSubject());
-
+                bookingService.rejectBooking(id, dto, DEV_USER_ID);
         return ResponseEntity.ok(ApiResponse.success("Booking rejected", rejected));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteBooking(
-            @PathVariable String id,
-            @AuthenticationPrincipal OidcUser principal) {
-
-        if (principal == null) return unauthorized();
-
+    public ResponseEntity<?> deleteBooking(@PathVariable String id) {
         bookingService.deleteBooking(id);
         return ResponseEntity.noContent().build();
     }

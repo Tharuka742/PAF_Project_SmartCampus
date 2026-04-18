@@ -3,10 +3,6 @@ package com.smartcampus.smart_campus_backend.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -34,29 +30,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "resources")
-@Document(collection = "resources")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Resource {
 
     @Id
     private String id;
 
-    private String name;
-    private String type;
-    private Integer capacity;
-    private String location;
-    private String status;
-    private String description;
-    private String imageUrl;
-    private String amenities;
     @NotBlank(message = "Name is required")
     private String name;
 
     @NotBlank(message = "Type is required")
-    private String type; // later you can convert to enum
+    private String type;
 
     @NotNull(message = "Capacity is required")
     @Min(value = 1, message = "Capacity must be at least 1")
@@ -66,18 +49,16 @@ public class Resource {
     private String location;
 
     @NotBlank(message = "Status is required")
-    private String status; // ACTIVE / OUT_OF_SERVICE
+    private String status;
 
     private String description;
 
     private String imageUrl;
 
-    // Better as list instead of string
     private List<String> amenities;
 
     private List<AvailabilityWindow> availabilityWindows;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-}
 }

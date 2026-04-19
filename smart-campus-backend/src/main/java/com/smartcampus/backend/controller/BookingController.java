@@ -22,7 +22,9 @@ import com.smartcampus.backend.dto.request.BookingRequestDTO;
 import com.smartcampus.backend.dto.request.BookingUpdateDTO;
 import com.smartcampus.backend.dto.response.ApiResponse;
 import com.smartcampus.backend.dto.response.BookingResponseDTO;
+import com.smartcampus.backend.model.AppUser;
 import com.smartcampus.backend.model.enums.BookingStatus;
+import com.smartcampus.backend.service.AuthService;
 import com.smartcampus.backend.service.BookingService;
 
 import jakarta.validation.Valid;
@@ -35,12 +37,7 @@ import lombok.RequiredArgsConstructor;
 public class BookingController {
 
     private final BookingService bookingService;
-
-    // Dev-mode user identity — no auth wired in.
-    private static final String DEV_USER_ID = "dev-user";
-    private static final String DEV_USER_NAME = "Dev User";
-    private static final String DEV_USER_EMAIL = "dev@smartcampus.local";
-    private static final boolean DEV_IS_ADMIN = true;
+    private final AuthService authService;
 
     @GetMapping("/check-conflict")
     public boolean checkConflict(
@@ -67,22 +64,26 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<?> createBooking(@Valid @RequestBody BookingRequestDTO request) {
+        AppUser currentUser = authService.getCurrentUser();
         BookingResponseDTO created =
-                bookingService.createBooking(request, DEV_USER_ID, DEV_USER_NAME, DEV_USER_EMAIL);
+                bookingService.createBooking(request, currentUser.getId(), currentUser.getUsername(), currentUser.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Booking created successfully", created));
     }
 
     @GetMapping("/me")
     public ResponseEntity<?> getMyBookings() {
-        List<BookingResponseDTO> mine = bookingService.getMyBookings(DEV_USER_ID);
+        AppUser currentUser = authService.getCurrentUser();
+        List<BookingResponseDTO> mine = bookingService.getMyBookings(currentUser.getId());
         return ResponseEntity.ok(ApiResponse.success("My bookings retrieved", mine));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getBookingById(@PathVariable String id) {
+        AppUser currentUser = authService.getCurrentUser();
+        boolean isAdmin = currentUser.getRole().name().equals("ADMIN");
         BookingResponseDTO booking =
-                bookingService.getBookingById(id, DEV_USER_ID, DEV_IS_ADMIN);
+                bookingService.getBookingById(id, currentUser.getId(), isAdmin);
         return ResponseEntity.ok(ApiResponse.success("Booking retrieved", booking));
     }
 
@@ -90,8 +91,9 @@ public class BookingController {
     public ResponseEntity<?> updateBooking(
             @PathVariable String id,
             @Valid @RequestBody BookingUpdateDTO update) {
+        AppUser currentUser = authService.getCurrentUser();
         BookingResponseDTO updated =
-                bookingService.updateBooking(id, update, DEV_USER_ID);
+                bookingService.updateBooking(id, update, currentUser.getId());
         return ResponseEntity.ok(ApiResponse.success("Booking updated", updated));
     }
 
@@ -99,8 +101,9 @@ public class BookingController {
     public ResponseEntity<?> cancelBooking(
             @PathVariable String id,
             @RequestBody(required = false) BookingApprovalDTO dto) {
+        AppUser currentUser = authService.getCurrentUser();
         BookingResponseDTO cancelled =
-                bookingService.cancelBooking(id, dto, DEV_USER_ID);
+                bookingService.cancelBooking(id, dto, currentUser.getId());
         return ResponseEntity.ok(ApiResponse.success("Booking cancelled", cancelled));
     }
 
@@ -117,8 +120,9 @@ public class BookingController {
     public ResponseEntity<?> approveBooking(
             @PathVariable String id,
             @RequestBody(required = false) BookingApprovalDTO dto) {
+        AppUser currentUser = authService.getCurrentUser();
         BookingResponseDTO approved =
-                bookingService.approveBooking(id, dto, DEV_USER_ID);
+                bookingService.approveBooking(id, dto, currentUser.getId());
         return ResponseEntity.ok(ApiResponse.success("Booking approved", approved));
     }
 
@@ -126,8 +130,9 @@ public class BookingController {
     public ResponseEntity<?> rejectBooking(
             @PathVariable String id,
             @Valid @RequestBody BookingApprovalDTO dto) {
+        AppUser currentUser = authService.getCurrentUser();
         BookingResponseDTO rejected =
-                bookingService.rejectBooking(id, dto, DEV_USER_ID);
+                bookingService.rejectBooking(id, dto, currentUser.getId());
         return ResponseEntity.ok(ApiResponse.success("Booking rejected", rejected));
     }
 

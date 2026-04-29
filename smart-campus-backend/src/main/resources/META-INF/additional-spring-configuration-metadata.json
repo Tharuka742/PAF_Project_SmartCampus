@@ -1,0 +1,52 @@
+{
+  "properties": [
+    {
+      "name": "app.jwt.secret",
+      "type": "java.lang.String",
+      "description": "HMAC signing secret for JWTs. Must be at least 256 bits.",
+      "defaultValue": "paf-secret-key-change-this-in-production-must-be-at-least-256-bits"
+    },
+    {
+      "name": "app.jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "JWT expiration in milliseconds.",
+      "defaultValue": 86400000
+    },
+    {
+      "name": "app.frontend.url",
+      "type": "java.lang.String",
+      "description": "Base URL of the frontend app (used for OAuth2 redirects, CORS, etc.).",
+      "defaultValue": "http://localhost:3000"
+    },
+    {
+      "name": "app.role.admin-code",
+      "type": "java.lang.String",
+      "description": "Shared code required to self-register as ADMIN.",
+      "defaultValue": "admin123"
+    },
+    {
+      "name": "app.role.technician-code",
+      "type": "java.lang.String",
+      "description": "Shared code required to self-register as TECHNICIAN.",
+      "defaultValue": "tech123"
+    },
+    {
+      "name": "app.cors.allowed-origins",
+      "type": "java.lang.String",
+      "description": "Comma-separated list of origins allowed by CORS.",
+      "defaultValue": "http://localhost:3000,http://localhost:3001,http://localhost:3002"
+    },
+    {
+      "name": "app.upload.dir",
+      "type": "java.lang.String",
+      "description": "Filesystem directory where ticket attachments are stored.",
+      "defaultValue": "uploads/tickets"
+    },
+    {
+      "name": "app.base-url",
+      "type": "java.lang.String",
+      "description": "Public base URL of this backend (used to build absolute links).",
+      "defaultValue": "http://localhost:8080"
+    }
+  ]
+}

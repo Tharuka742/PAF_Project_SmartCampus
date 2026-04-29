@@ -1,0 +1,19 @@
+# OS / IDE
+.DS_Store
+.vscode/
+
+# Java
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Node
+**/node_modules/
+**/dist/
+
+# Env files
+.env
+.env.*
+!.env.example

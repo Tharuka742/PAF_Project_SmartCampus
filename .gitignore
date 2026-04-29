@@ -11,6 +11,8 @@
 
 # Node
 node_modules/
+smart-campus-backend/node_modules/
+smart-campus-frontend/node_modules/
 **/node_modules/
 **/dist/
 

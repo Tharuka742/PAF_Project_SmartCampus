@@ -10,9 +10,6 @@
 *.ear
 
 # Node
-node_modules/
-smart-campus-frontend/node_modules/
-dist/
 **/node_modules/
 **/dist/
 

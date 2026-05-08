@@ -312,7 +312,12 @@ npm run lint       # Run ESLint
 
 ## Contributors
 
-This project was developed as a group submission for the Programming Application Frameworks (PAF) module. See the GitHub contributors list and recent commits for individual contributions.
+This project was developed as a group submission for the Programming Application Frameworks (PAF) module by:
+
+- Kavindu Marasinghe
+- Biyuni Tharuka
+- Gayani Warnakulasuriya
+- Malith Induwara
 
 ---
 

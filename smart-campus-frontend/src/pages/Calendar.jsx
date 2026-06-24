@@ -11,27 +11,27 @@ import {
   FileText,
   Users,
   X,
-  Loader2,
+  Sparkles,
+  CheckCircle2,
+  Tag,
+  User,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import bookingService from '../services/bookingService';
 
-// Setup moment localizer for react-big-calendar
 const localizer = momentLocalizer(moment);
 
-// ===== COLOR MAP — unique color per resource name =====
 const RESOURCE_COLORS = {
-  'Lab': { bg: '#3b82f6', dot: '#3b82f6', light: '#eff6ff' },    // blue
-  'Lecture Hall': { bg: '#8b5cf6', dot: '#8b5cf6', light: '#f5f3ff' },    // purple
-  'Meeting Room': { bg: '#10b981', dot: '#10b981', light: '#ecfdf5' },    // green
-  'Auditorium':{ bg: '#f59e0b', dot: '#f59e0b', light: '#fffbeb' },    // amber
+  'Lab': { bg: '#3b82f6', dot: '#3b82f6', light: '#eff6ff' },
+  'Lecture Hall': { bg: '#8b5cf6', dot: '#8b5cf6', light: '#f5f3ff' },
+  'Meeting Room': { bg: '#10b981', dot: '#10b981', light: '#ecfdf5' },
+  'Auditorium':{ bg: '#f59e0b', dot: '#f59e0b', light: '#fffbeb' },
   'Library Space': { bg: '#64748b', dot: '#64748b', light: '#f1f5f9'},
-  'Equipment':{ bg: '#ef4444', dot: '#ef4444', light: '#fef2f2' },    // red
-  'Open Area teater': { bg: '#a855f7', dot: '#a855f7', light: '#faf5ff' },    // violet
-  'Sports Complex':  { bg: '#ec4899', dot: '#ec4899', light: '#fdf2f8' },    // pink
+  'Equipment':{ bg: '#ef4444', dot: '#ef4444', light: '#fef2f2' },
+  'Open Area teater': { bg: '#a855f7', dot: '#a855f7', light: '#faf5ff' },
+  'Sports Complex':  { bg: '#ec4899', dot: '#ec4899', light: '#fdf2f8' },
 };
 
-// Fallback color for unknown resources
 const DEFAULT_COLOR = { bg: '#6366f1', dot: '#6366f1', light: '#eef2ff' };
 
 const getResourceColor = (name) => {
@@ -41,13 +41,11 @@ const getResourceColor = (name) => {
 function CalendarPage() {
   const navigate = useNavigate();
 
-  // State
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentView, setCurrentView] = useState('month'); // 'month' or 'week'
+  const [currentView, setCurrentView] = useState('month');
 
-  // Detail popup state
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
@@ -57,7 +55,6 @@ function CalendarPage() {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      // Try admin endpoint first → if not admin, fallback to user's bookings
       let response;
       try {
         response = await bookingService.getAllBookings();
@@ -76,8 +73,6 @@ function CalendarPage() {
     }
   };
 
-  // ===== CONVERT BOOKINGS → CALENDAR EVENTS =====
-  // Only APPROVED bookings shown on calendar
   const events = useMemo(() => {
     return bookings
       .filter((b) => b.status === 'APPROVED')
@@ -91,7 +86,6 @@ function CalendarPage() {
       }));
   }, [bookings]);
 
-  // ===== UNIQUE RESOURCES FOR LEGEND =====
   const legendItems = useMemo(() => {
     const seen = new Set();
     return events
@@ -107,7 +101,6 @@ function CalendarPage() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [events]);
 
-  // Also add resources that exist in color map but have no events
   const allLegendItems = useMemo(() => {
     const fromEvents = legendItems.map((l) => l.name);
     const allNames = Object.keys(RESOURCE_COLORS);
@@ -120,36 +113,31 @@ function CalendarPage() {
     return combined.sort((a, b) => a.name.localeCompare(b.name));
   }, [legendItems]);
 
-  // ===== CUSTOM EVENT STYLING =====
   const eventStyleGetter = useCallback((event) => {
     return {
       style: {
         backgroundColor: event.color.bg,
-        borderRadius: '6px',
+        borderRadius: '8px',
         color: 'white',
         border: 'none',
-        padding: '2px 6px',
+        padding: '3px 8px',
         fontSize: '12px',
-        fontWeight: '500',
+        fontWeight: '600',
         cursor: 'pointer',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
       },
     };
   }, []);
 
-  // ===== CLICK HANDLERS =====
-
-  // Click a booking pill → show detail popup
   const handleSelectEvent = useCallback((event) => {
     setSelectedEvent(event.resource);
   }, []);
 
-  // Click an empty day → navigate to booking form with date pre-filled
   const handleSelectSlot = useCallback(
     ({ start }) => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      // Ignore past dates
       if (start < today) {
         toast.error('Cannot create bookings in the past');
         return;
@@ -161,7 +149,6 @@ function CalendarPage() {
     [navigate]
   );
 
-  // ===== NAVIGATION HANDLERS =====
   const goToToday = () => setCurrentDate(new Date());
 
   const goBack = () => {
@@ -188,7 +175,6 @@ function CalendarPage() {
     });
   };
 
-  // ===== FORMAT HELPERS =====
   const formatTime = (dateStr) => {
     if (!dateStr) return '--:--';
     const d = new Date(dateStr);
@@ -204,18 +190,19 @@ function CalendarPage() {
     return moment(dateStr).format('YYYY-MM-DD');
   };
 
-  // Title text
   const headerTitle = moment(currentDate).format(
     currentView === 'month' ? 'MMMM YYYY' : '[Week of] MMM D, YYYY'
   );
 
-  // ===== LOADING STATE =====
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-slate-500">Loading calendar...</p>
+      <div className="flex items-center justify-center h-96">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-blue-100 rounded-full" />
+            <div className="absolute inset-0 w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+          <p className="text-sm font-medium text-slate-500">Loading calendar...</p>
         </div>
       </div>
     );
@@ -223,66 +210,78 @@ function CalendarPage() {
 
   return (
     <div>
-      {/* Page header */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold text-slate-900">Booking Calendar</h1>
-        <p className="text-slate-500 text-sm mt-1">
-          View approved bookings on a calendar
-        </p>
+      {/* ── Page header ─────────────────────────────────────────── */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-700">
+            <Sparkles className="w-3 h-3" />
+            Schedule View
+          </div>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Booking Calendar</h1>
+          <p className="mt-1 text-sm text-slate-500">View approved bookings on a calendar</p>
+        </div>
+        <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 shadow-sm">
+          <span className="grid h-6 w-6 place-items-center rounded-md bg-emerald-50 text-emerald-600">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+          </span>
+          <span>
+            <span className="font-bold text-slate-800">{events.length}</span> approved booking
+            {events.length !== 1 ? 's' : ''}
+          </span>
+        </div>
       </div>
 
-      {/* Calendar container */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6">
-        {/* ===== CUSTOM TOOLBAR ===== */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-          {/* Month/Year title */}
-          <div className="flex items-center gap-2">
-            <CalendarDays className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-bold text-slate-800">{headerTitle}</h2>
+      {/* ── Calendar container ──────────────────────────────────── */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        {/* ── Toolbar ──────────────────────────────────────────── */}
+        <div className="mb-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 ring-1 ring-blue-100">
+              <CalendarDays className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold tracking-tight text-slate-900">{headerTitle}</h2>
           </div>
 
-          {/* Controls */}
           <div className="flex items-center gap-2">
-            {/* Today button */}
             <button
               onClick={goToToday}
-              className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
             >
               Today
             </button>
 
-            {/* Nav arrows */}
-            <button
-              onClick={goBack}
-              className="p-1.5 border border-slate-300 rounded-lg text-slate-500 hover:bg-slate-50 transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={goForward}
-              className="p-1.5 border border-slate-300 rounded-lg text-slate-500 hover:bg-slate-50 transition-colors"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            <div className="flex overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <button
+                onClick={goBack}
+                className="grid h-9 w-9 place-items-center border-r border-slate-200 text-slate-500 transition hover:bg-slate-50"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={goForward}
+                className="grid h-9 w-9 place-items-center text-slate-500 transition hover:bg-slate-50"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
 
-            {/* View toggle */}
-            <div className="flex rounded-lg border border-slate-300 overflow-hidden ml-2">
+            <div className="flex overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
               <button
                 onClick={() => setCurrentView('month')}
-                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`px-3.5 py-2 text-sm font-semibold transition ${
                   currentView === 'month'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-slate-600 hover:bg-slate-50'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
+                    : 'text-slate-600 hover:bg-slate-50'
                 }`}
               >
                 Month
               </button>
               <button
                 onClick={() => setCurrentView('week')}
-                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`px-3.5 py-2 text-sm font-semibold transition ${
                   currentView === 'week'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-slate-600 hover:bg-slate-50'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
+                    : 'text-slate-600 hover:bg-slate-50'
                 }`}
               >
                 Week
@@ -291,10 +290,10 @@ function CalendarPage() {
           </div>
         </div>
 
-        {/* ===== CALENDAR GRID ===== */}
+        {/* ── Calendar grid ────────────────────────────────────── */}
         <div
           style={{ height: currentView === 'month' ? 600 : 500 }}
-          className="rbc-calendar-wrapper"
+          className="rbc-calendar-wrapper rounded-xl"
         >
           <BigCalendar
             localizer={localizer}
@@ -308,7 +307,7 @@ function CalendarPage() {
             onSelectEvent={handleSelectEvent}
             onSelectSlot={handleSelectSlot}
             eventPropGetter={eventStyleGetter}
-            toolbar={false} // We use our custom toolbar above
+            toolbar={false}
             popup
             formats={{
               timeGutterFormat: (date) => moment(date).format('HH:mm'),
@@ -321,97 +320,90 @@ function CalendarPage() {
           />
         </div>
 
-        {/* ===== COLOR LEGEND ===== */}
-        <div className="mt-4 pt-4 border-t border-slate-100">
+        {/* ── Legend ───────────────────────────────────────────── */}
+        <div className="mt-5 rounded-xl border border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50/30 p-4">
+          <div className="mb-2.5 flex items-center gap-1.5">
+            <Tag className="w-3.5 h-3.5 text-slate-400" />
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Resource Legend</p>
+          </div>
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             {allLegendItems.map((item) => (
               <div key={item.name} className="flex items-center gap-1.5">
                 <span
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                  className="h-3 w-3 flex-shrink-0 rounded-md ring-2 ring-white shadow-sm"
                   style={{ backgroundColor: item.color.dot }}
                 />
-                <span className="text-xs text-slate-500">{item.name}</span>
+                <span className="text-xs font-medium text-slate-600">{item.name}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ===== BOOKING DETAIL POPUP ===== */}
+      {/* ── Booking detail popup ────────────────────────────────── */}
       {selectedEvent && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
+          onClick={() => setSelectedEvent(null)}
+        >
           <div
-            className="bg-white rounded-xl w-full max-w-md shadow-2xl overflow-hidden"
+            className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Colored header bar */}
             <div
-              className="h-2"
+              className="relative px-6 pt-6 pb-5 text-white"
               style={{
-                backgroundColor: getResourceColor(selectedEvent.resourceName).bg,
+                background: `linear-gradient(135deg, ${getResourceColor(selectedEvent.resourceName).bg}, ${getResourceColor(selectedEvent.resourceName).bg}dd)`,
               }}
-            />
-
-            <div className="p-6">
-              {/* Close button */}
-              <div className="flex items-start justify-between mb-4">
+            >
+              <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/15 blur-2xl" />
+              <div className="relative flex items-start justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900">
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Approved
+                  </div>
+                  <h3 className="mt-2 text-xl font-bold">
                     {selectedEvent.resourceName || 'Booking Details'}
                   </h3>
-                  <span className="inline-block mt-1 px-2.5 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                    APPROVED
-                  </span>
                 </div>
                 <button
                   onClick={() => setSelectedEvent(null)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                  className="grid h-8 w-8 place-items-center rounded-lg bg-white/15 text-white transition hover:bg-white/25"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
+            </div>
 
-              {/* Details */}
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center gap-3 text-slate-600">
-                  <CalendarDays className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                  <span>{formatDate(selectedEvent.startTime)}</span>
-                </div>
-                <div className="flex items-center gap-3 text-slate-600">
-                  <Clock className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                  <span>
-                    {formatTime(selectedEvent.startTime)} –{' '}
-                    {formatTime(selectedEvent.endTime)}
-                  </span>
-                </div>
+            <div className="p-6">
+              <div className="space-y-3">
+                <DetailRow icon={CalendarDays} label="Date" value={formatDate(selectedEvent.startTime)} />
+                <DetailRow
+                  icon={Clock}
+                  label="Time"
+                  value={`${formatTime(selectedEvent.startTime)} – ${formatTime(selectedEvent.endTime)}`}
+                />
                 {selectedEvent.purpose && (
-                  <div className="flex items-start gap-3 text-slate-600">
-                    <FileText className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
-                    <span>{selectedEvent.purpose}</span>
-                  </div>
+                  <DetailRow icon={FileText} label="Purpose" value={selectedEvent.purpose} multiline />
                 )}
                 {selectedEvent.expectedAttendees && (
-                  <div className="flex items-center gap-3 text-slate-600">
-                    <Users className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <span>{selectedEvent.expectedAttendees} attendees</span>
-                  </div>
+                  <DetailRow icon={Users} label="Attendees" value={`${selectedEvent.expectedAttendees} people`} />
                 )}
                 {selectedEvent.userName && (
-                  <div className="flex items-center gap-3 text-slate-600">
-                    <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <span>Booked by {selectedEvent.userName}</span>
-                  </div>
+                  <DetailRow icon={User} label="Booked by" value={selectedEvent.userName} />
                 )}
               </div>
 
-              {/* Resource type badge */}
               {selectedEvent.resourceType && (
-                <div className="mt-4">
+                <div className="mt-4 flex items-center gap-2">
+                  <Tag className="w-3.5 h-3.5 text-slate-400" />
                   <span
-                    className="inline-block px-3 py-1 text-xs font-medium rounded-full"
+                    className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1"
                     style={{
                       backgroundColor: getResourceColor(selectedEvent.resourceName).light,
                       color: getResourceColor(selectedEvent.resourceName).bg,
+                      borderColor: 'transparent',
                     }}
                   >
                     {selectedEvent.resourceType.replace(/_/g, ' ')}
@@ -419,10 +411,9 @@ function CalendarPage() {
                 </div>
               )}
 
-              {/* Close button */}
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="mt-5 w-full py-2.5 border border-slate-300 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+                className="mt-6 w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 Close
               </button>
@@ -430,6 +421,20 @@ function CalendarPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function DetailRow({ icon: Icon, label, value, multiline }) {
+  return (
+    <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50/50 p-3">
+      <div className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg bg-white text-slate-500 ring-1 ring-slate-200">
+        <Icon className="w-3.5 h-3.5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
+        <p className={`mt-0.5 text-sm font-medium text-slate-800 ${multiline ? '' : 'truncate'}`}>{value}</p>
+      </div>
     </div>
   );
 }

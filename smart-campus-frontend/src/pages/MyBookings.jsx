@@ -9,35 +9,56 @@ import {
   Loader2,
   Plus,
   AlertTriangle,
+  CheckCircle2,
+  AlertCircle,
+  Ban,
+  Sparkles,
+  Filter,
+  CalendarCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import bookingService from '../services/bookingService';
 
-// Status badge styles
 const STATUS_CONFIG = {
   PENDING: {
-    bg: 'bg-yellow-100',
-    text: 'text-yellow-700',
-    border: 'border-yellow-200',
-    cardBorder: 'border-l-yellow-400',
+    bg: 'bg-amber-100',
+    text: 'text-amber-700',
+    border: 'border-amber-200',
+    cardBorder: 'border-l-amber-400',
+    gradient: 'from-amber-500 to-orange-500',
+    soft: 'bg-amber-50',
+    icon: AlertCircle,
+    iconText: 'text-amber-600',
   },
   APPROVED: {
-    bg: 'bg-green-100',
-    text: 'text-green-700',
-    border: 'border-green-200',
-    cardBorder: 'border-l-green-400',
+    bg: 'bg-emerald-100',
+    text: 'text-emerald-700',
+    border: 'border-emerald-200',
+    cardBorder: 'border-l-emerald-400',
+    gradient: 'from-emerald-500 to-teal-500',
+    soft: 'bg-emerald-50',
+    icon: CheckCircle2,
+    iconText: 'text-emerald-600',
   },
   REJECTED: {
-    bg: 'bg-red-100',
-    text: 'text-red-700',
-    border: 'border-red-200',
-    cardBorder: 'border-l-red-400',
+    bg: 'bg-rose-100',
+    text: 'text-rose-700',
+    border: 'border-rose-200',
+    cardBorder: 'border-l-rose-400',
+    gradient: 'from-rose-500 to-pink-500',
+    soft: 'bg-rose-50',
+    icon: XCircle,
+    iconText: 'text-rose-600',
   },
   CANCELLED: {
-    bg: 'bg-gray-100',
-    text: 'text-gray-600',
-    border: 'border-gray-200',
-    cardBorder: 'border-l-gray-400',
+    bg: 'bg-slate-100',
+    text: 'text-slate-600',
+    border: 'border-slate-200',
+    cardBorder: 'border-l-slate-400',
+    gradient: 'from-slate-500 to-slate-600',
+    soft: 'bg-slate-50',
+    icon: Ban,
+    iconText: 'text-slate-500',
   },
 };
 
@@ -47,13 +68,11 @@ function MyBookings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Cancel modal state
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelBookingId, setCancelBookingId] = useState(null);
   const [cancelReason, setCancelReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
 
-  // Filter state
   const [statusFilter, setStatusFilter] = useState('ALL');
 
   useEffect(() => {
@@ -77,7 +96,6 @@ function MyBookings() {
     }
   };
 
-  // ===== CANCEL BOOKING =====
   const openCancelModal = (bookingId) => {
     setCancelBookingId(bookingId);
     setCancelReason('');
@@ -96,7 +114,6 @@ function MyBookings() {
       if (response.success) {
         toast.success('Booking cancelled successfully');
         setShowCancelModal(false);
-        // Update the booking in state without re-fetching
         setBookings((prev) =>
           prev.map((b) =>
             b.id === cancelBookingId
@@ -114,7 +131,6 @@ function MyBookings() {
     }
   };
 
-  // ===== FORMAT HELPERS =====
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     return dateStr.split('T')[0];
@@ -130,43 +146,43 @@ function MyBookings() {
     });
   };
 
-  // ===== FILTER =====
   const filteredBookings =
     statusFilter === 'ALL'
       ? bookings
       : bookings.filter((b) => b.status === statusFilter);
 
-  // Sort: PENDING first, then by date descending
   const sortedBookings = [...filteredBookings].sort((a, b) => {
-    // PENDING always on top
     if (a.status === 'PENDING' && b.status !== 'PENDING') return -1;
     if (b.status === 'PENDING' && a.status !== 'PENDING') return 1;
-    // Then by startTime descending
     return new Date(b.startTime) - new Date(a.startTime);
   });
 
-  // ===== LOADING STATE =====
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-slate-500">Loading your bookings...</p>
+      <div className="flex items-center justify-center h-96">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-blue-100 rounded-full" />
+            <div className="absolute inset-0 w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+          <p className="text-sm font-medium text-slate-500">Loading your bookings...</p>
         </div>
       </div>
     );
   }
 
-  // ===== ERROR STATE =====
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <XCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
-          <p className="text-slate-600 mb-4">{error}</p>
+      <div className="flex items-center justify-center h-96">
+        <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-8 text-center max-w-sm">
+          <div className="grid h-14 w-14 mx-auto place-items-center rounded-2xl bg-white ring-4 ring-rose-100">
+            <XCircle className="w-7 h-7 text-rose-500" />
+          </div>
+          <p className="mt-4 font-semibold text-slate-800">Something went wrong</p>
+          <p className="mt-1 text-sm text-slate-500">{error}</p>
           <button
             onClick={fetchBookings}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-900/20 transition hover:from-blue-700 hover:to-indigo-700"
           >
             Try Again
           </button>
@@ -177,64 +193,77 @@ function MyBookings() {
 
   return (
     <div>
-      {/* Page header */}
-      <div className="flex items-center justify-between mb-6">
+      {/* ── Page header ─────────────────────────────────────────── */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">My Bookings</h1>
-          <p className="text-slate-500 text-sm mt-1">
-            View and track your booking requests
-          </p>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-700">
+            <Sparkles className="w-3 h-3" />
+            My Activity
+          </div>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">My Bookings</h1>
+          <p className="mt-1 text-sm text-slate-500">View and track your booking requests</p>
         </div>
         <button
           onClick={() => navigate('/new-booking')}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-900/20 transition hover:from-blue-700 hover:to-indigo-700"
         >
           <Plus className="w-4 h-4" />
           New Booking
         </button>
       </div>
 
-      {/* Status filter tabs */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {['ALL', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'].map(
-          (status) => {
+      {/* ── Filter tabs ─────────────────────────────────────────── */}
+      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5 px-2 text-xs font-semibold text-slate-500">
+            <Filter className="w-3.5 h-3.5" />
+            Filter
+          </div>
+          {['ALL', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'].map((status) => {
             const count =
               status === 'ALL'
                 ? bookings.length
                 : bookings.filter((b) => b.status === status).length;
             const isActive = statusFilter === status;
-            const style =
-              status !== 'ALL' ? STATUS_CONFIG[status] : null;
+            const style = status !== 'ALL' ? STATUS_CONFIG[status] : null;
+            const Icon = style?.icon;
             return (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                   isActive
                     ? status === 'ALL'
-                      ? 'bg-slate-800 text-white'
-                      : `${style.bg} ${style.text}`
-                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                      ? 'bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-md'
+                      : `bg-gradient-to-r ${style.gradient} text-white shadow-md`
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                {status === 'ALL' ? 'All' : status.charAt(0) + status.slice(1).toLowerCase()}{' '}
-                ({count})
+                {Icon && <Icon className="w-3 h-3" />}
+                {status === 'ALL' ? 'All' : status.charAt(0) + status.slice(1).toLowerCase()}
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                    isActive ? 'bg-white/20 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200'
+                  }`}
+                >
+                  {count}
+                </span>
               </button>
             );
-          }
-        )}
+          })}
+        </div>
       </div>
 
-      {/* ===== EMPTY STATE ===== */}
+      {/* ── Empty state ─────────────────────────────────────────── */}
       {sortedBookings.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
-          <CalendarDays className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-slate-700 mb-1">
-            {statusFilter === 'ALL'
-              ? 'No bookings yet'
-              : `No ${statusFilter.toLowerCase()} bookings`}
+        <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-16 text-center shadow-sm">
+          <div className="grid h-16 w-16 mx-auto place-items-center rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 ring-4 ring-blue-50">
+            <CalendarDays className="w-8 h-8 text-blue-400" />
+          </div>
+          <h3 className="mt-4 text-lg font-bold text-slate-800">
+            {statusFilter === 'ALL' ? 'No bookings yet' : `No ${statusFilter.toLowerCase()} bookings`}
           </h3>
-          <p className="text-sm text-slate-400 mb-6">
+          <p className="mt-1 text-sm text-slate-500">
             {statusFilter === 'ALL'
               ? 'Create your first booking to get started!'
               : 'Try changing the filter above.'}
@@ -242,79 +271,94 @@ function MyBookings() {
           {statusFilter === 'ALL' && (
             <button
               onClick={() => navigate('/new-booking')}
-              className="px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-900/20 transition hover:from-blue-700 hover:to-indigo-700"
             >
+              <Plus className="w-4 h-4" />
               Create First Booking
             </button>
           )}
         </div>
       ) : (
-        /* ===== BOOKING CARDS GRID ===== */
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        /* ── Booking cards grid ───────────────────────────────── */
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {sortedBookings.map((booking) => {
             const config = STATUS_CONFIG[booking.status] || STATUS_CONFIG.CANCELLED;
+            const StatusIcon = config.icon;
             const canCancel =
               booking.status === 'PENDING' || booking.status === 'APPROVED';
 
             return (
               <div
                 key={booking.id}
-                className={`bg-white rounded-xl border border-slate-200 border-l-4 ${config.cardBorder} p-5 hover:shadow-md transition-shadow`}
+                className={`group relative overflow-hidden rounded-2xl border border-slate-200 border-l-4 ${config.cardBorder} bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg`}
               >
-                {/* Top row: resource name + status badge */}
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="font-semibold text-slate-900 text-sm leading-tight">
-                    {booking.resourceName || 'Resource'}
-                  </h3>
+                <div
+                  className={`pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${config.gradient} opacity-[0.06] blur-2xl transition group-hover:opacity-[0.14]`}
+                />
+
+                {/* Top row */}
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className={`grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl ${config.soft} ring-1 ring-slate-200`}>
+                      <CalendarCheck className={`w-5 h-5 ${config.iconText}`} />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="truncate text-sm font-bold leading-tight text-slate-900">
+                        {booking.resourceName || 'Resource'}
+                      </h3>
+                      <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                        Booking #{String(booking.id).slice(0, 8)}
+                      </p>
+                    </div>
+                  </div>
                   <span
-                    className={`px-2.5 py-1 text-xs font-semibold rounded-full flex-shrink-0 ml-2 ${config.bg} ${config.text}`}
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${config.bg} ${config.text} ring-1 ${config.border}`}
                   >
+                    <StatusIcon className="w-3 h-3" />
                     {booking.status}
                   </span>
                 </div>
 
-                {/* Booking details */}
-                <div className="space-y-1.5 text-sm text-slate-500">
+                {/* Details */}
+                <div className="space-y-2 text-sm text-slate-600">
                   <div className="flex items-center gap-2">
-                    <CalendarDays className="w-3.5 h-3.5 flex-shrink-0" />
+                    <CalendarDays className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                     <span>{formatDate(booking.startTime)}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                    <Clock className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                     <span>
-                      {formatTime(booking.startTime)} –{' '}
-                      {formatTime(booking.endTime)}
+                      {formatTime(booking.startTime)} – {formatTime(booking.endTime)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <FileText className="w-3.5 h-3.5 flex-shrink-0" />
+                    <FileText className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                     <span className="truncate">{booking.purpose}</span>
                   </div>
                   {booking.expectedAttendees && (
                     <div className="flex items-center gap-2">
-                      <Users className="w-3.5 h-3.5 flex-shrink-0" />
+                      <Users className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
                       <span>{booking.expectedAttendees} attendees</span>
                     </div>
                   )}
                 </div>
 
-                {/* ===== REJECTION/CANCELLATION REASON ===== */}
+                {/* Decision reason */}
                 {booking.decisionReason &&
-                  (booking.status === 'REJECTED' ||
-                    booking.status === 'CANCELLED') && (
-                    <div className="mt-3 px-3 py-2 bg-red-50 border border-red-100 rounded-lg">
-                      <p className="text-xs text-red-600">
-                        <span className="font-semibold">Reason:</span>{' '}
-                        {booking.decisionReason}
+                  (booking.status === 'REJECTED' || booking.status === 'CANCELLED') && (
+                    <div className="mt-3 rounded-xl border border-rose-100 bg-rose-50/70 px-3 py-2">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-rose-500">
+                        Reason
                       </p>
+                      <p className="mt-0.5 text-xs text-rose-700">{booking.decisionReason}</p>
                     </div>
                   )}
 
-                {/* ===== CANCEL BUTTON ===== */}
+                {/* Cancel button */}
                 {canCancel && (
                   <button
                     onClick={() => openCancelModal(booking.id)}
-                    className="mt-4 w-full flex items-center justify-center gap-1.5 py-2 text-sm text-slate-500 border border-slate-300 rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+                    className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
                   >
                     <XCircle className="w-3.5 h-3.5" />
                     Cancel Booking
@@ -326,62 +370,67 @@ function MyBookings() {
         </div>
       )}
 
-      {/* ===== CANCEL CONFIRMATION MODAL ===== */}
+      {/* ── Cancel modal ────────────────────────────────────────── */}
       {showCancelModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl">
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-900">
-                  Cancel Booking
-                </h3>
-                <p className="text-xs text-slate-400">
-                  This action cannot be undone
-                </p>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
+          onClick={() => !cancelling && setShowCancelModal(false)}
+        >
+          <div
+            className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative bg-gradient-to-r from-rose-500 to-pink-500 px-6 py-5 text-white">
+              <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/15 blur-2xl" />
+              <div className="relative flex items-center gap-3">
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-white/15 backdrop-blur ring-1 ring-white/25">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold">Cancel Booking</h3>
+                  <p className="text-xs text-rose-100">This action cannot be undone</p>
+                </div>
               </div>
             </div>
 
-            {/* Reason (optional) */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Reason for cancellation (optional)
+            <div className="p-6">
+              <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                Reason for cancellation <span className="text-slate-400">(optional)</span>
               </label>
               <textarea
                 rows={3}
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder="e.g. Schedule changed, no longer needed"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition hover:border-rose-200 focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
               />
-            </div>
 
-            {/* Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowCancelModal(false)}
-                disabled={cancelling}
-                className="flex-1 px-4 py-2.5 border border-slate-300 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
-              >
-                Keep Booking
-              </button>
-              <button
-                onClick={handleCancel}
-                disabled={cancelling}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
-              >
-                {cancelling ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Cancelling...
-                  </>
-                ) : (
-                  'Yes, Cancel'
-                )}
-              </button>
+              <div className="mt-5 flex gap-3">
+                <button
+                  onClick={() => setShowCancelModal(false)}
+                  disabled={cancelling}
+                  className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+                >
+                  Keep Booking
+                </button>
+                <button
+                  onClick={handleCancel}
+                  disabled={cancelling}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-rose-900/20 transition hover:from-rose-600 hover:to-pink-600 disabled:opacity-50"
+                >
+                  {cancelling ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Cancelling...
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-4 h-4" />
+                      Yes, Cancel
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -7,17 +7,76 @@ import {
   XCircle,
   Clock,
   TrendingUp,
+  Plus,
+  RefreshCw,
+  ChevronRight,
+  Sparkles,
+  ArrowUpRight,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import bookingService from '../services/bookingService';
 
-// Status badge colors
 const STATUS_STYLES = {
-  PENDING: 'bg-yellow-100 text-yellow-700',
-  APPROVED: 'bg-green-100 text-green-700',
-  REJECTED: 'bg-red-100 text-red-700',
-  CANCELLED: 'bg-gray-100 text-gray-600',
+  PENDING: 'bg-amber-100 text-amber-700 ring-amber-200',
+  APPROVED: 'bg-emerald-100 text-emerald-700 ring-emerald-200',
+  REJECTED: 'bg-rose-100 text-rose-700 ring-rose-200',
+  CANCELLED: 'bg-slate-100 text-slate-600 ring-slate-200',
 };
+
+const STATUS_ICONS = {
+  PENDING: AlertCircle,
+  APPROVED: CheckCircle2,
+  REJECTED: XCircle,
+  CANCELLED: XCircle,
+};
+
+const STAT_META = {
+  total: {
+    label: 'Total Bookings',
+    icon: CalendarDays,
+    iconBg: 'bg-blue-50',
+    iconText: 'text-blue-600',
+    ring: 'ring-blue-100',
+    bar: 'from-blue-500 to-indigo-500',
+    glow: 'from-blue-400 to-indigo-500',
+  },
+  approved: {
+    label: 'Approved',
+    icon: CheckCircle2,
+    iconBg: 'bg-emerald-50',
+    iconText: 'text-emerald-600',
+    ring: 'ring-emerald-100',
+    bar: 'from-emerald-500 to-teal-500',
+    glow: 'from-emerald-400 to-teal-500',
+  },
+  pending: {
+    label: 'Pending',
+    icon: AlertCircle,
+    iconBg: 'bg-amber-50',
+    iconText: 'text-amber-600',
+    ring: 'ring-amber-100',
+    bar: 'from-amber-500 to-orange-500',
+    glow: 'from-amber-400 to-orange-500',
+  },
+  rejected: {
+    label: 'Rejected',
+    icon: XCircle,
+    iconBg: 'bg-rose-50',
+    iconText: 'text-rose-600',
+    ring: 'ring-rose-100',
+    bar: 'from-rose-500 to-pink-500',
+    glow: 'from-rose-400 to-pink-500',
+  },
+};
+
+const UTILIZATION_BARS = [
+  'from-blue-500 to-indigo-500',
+  'from-emerald-500 to-teal-500',
+  'from-amber-500 to-orange-500',
+  'from-violet-500 to-fuchsia-500',
+  'from-rose-500 to-pink-500',
+  'from-cyan-500 to-sky-500',
+];
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -34,13 +93,10 @@ function Dashboard() {
       setLoading(true);
       setError(null);
 
-      // Try admin endpoint first (gets ALL bookings)
-      // If user is not admin, backend returns 403 → fall back to /me
       let response;
       try {
         response = await bookingService.getAllBookings();
       } catch (err) {
-        // Not admin — use user's own bookings
         response = await bookingService.getMyBookings();
       }
 
@@ -56,7 +112,6 @@ function Dashboard() {
     }
   };
 
-  // ===== CALCULATE STATS =====
   const stats = {
     total: bookings.length,
     approved: bookings.filter((b) => b.status === 'APPROVED').length,
@@ -64,16 +119,13 @@ function Dashboard() {
     rejected: bookings.filter((b) => b.status === 'REJECTED').length,
   };
 
-  // ===== RECENT BOOKINGS (latest 5) =====
   const recentBookings = [...bookings]
     .sort((a, b) => new Date(b.createdAt || b.startTime) - new Date(a.createdAt || a.startTime))
     .slice(0, 5);
 
-  // ===== RESOURCE UTILIZATION =====
   const resourceCounts = {};
   bookings.forEach((b) => {
     const type = b.resourceType || 'Unknown';
-    // Convert type like LECTURE_HALL → Lecture Hall
     const label = type
       .replace(/_/g, ' ')
       .replace(/\b\w/g, (c) => c.toUpperCase())
@@ -89,7 +141,6 @@ function Dashboard() {
     }))
     .sort((a, b) => b.count - a.count);
 
-  // ===== FORMAT HELPERS =====
   const formatTime = (dateStr) => {
     if (!dateStr) return '--:--';
     const d = new Date(dateStr);
@@ -98,32 +149,37 @@ function Dashboard() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
-    return dateStr.split('T')[0]; // "2026-04-07"
+    return dateStr.split('T')[0];
   };
 
-  // ===== LOADING STATE =====
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-slate-500">Loading dashboard...</p>
+      <div className="flex items-center justify-center h-96">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-blue-100 rounded-full" />
+            <div className="absolute inset-0 w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+          <p className="text-sm font-medium text-slate-500">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
-  // ===== ERROR STATE =====
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <XCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
-          <p className="text-slate-600 mb-4">{error}</p>
+      <div className="flex items-center justify-center h-96">
+        <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-8 text-center max-w-sm">
+          <div className="grid h-14 w-14 mx-auto place-items-center rounded-2xl bg-white ring-4 ring-rose-100">
+            <XCircle className="w-7 h-7 text-rose-500" />
+          </div>
+          <p className="mt-4 font-semibold text-slate-800">Something went wrong</p>
+          <p className="mt-1 text-sm text-slate-500">{error}</p>
           <button
             onClick={fetchBookings}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-900/20 transition hover:from-blue-700 hover:to-indigo-700"
           >
+            <RefreshCw className="w-4 h-4" />
             Try Again
           </button>
         </div>
@@ -133,154 +189,205 @@ function Dashboard() {
 
   return (
     <div>
-      {/* Page header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-1">Overview of campus resource bookings</p>
-      </div>
-
-      {/* ===== STAT CARDS ===== */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {/* Total Bookings */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                Total Bookings
-              </p>
-              <p className="text-3xl font-bold text-slate-900 mt-1">{stats.total}</p>
-            </div>
-            <div className="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center">
-              <CalendarDays className="w-6 h-6 text-blue-500" />
-            </div>
+      {/* ── Page header ─────────────────────────────────────────── */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-700">
+            <Sparkles className="w-3 h-3" />
+            Live Overview
           </div>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+          <p className="mt-1 text-sm text-slate-500">Overview of campus resource bookings</p>
         </div>
-
-        {/* Approved */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                Approved
-              </p>
-              <p className="text-3xl font-bold text-slate-900 mt-1">{stats.approved}</p>
-            </div>
-            <div className="w-11 h-11 bg-green-50 rounded-xl flex items-center justify-center">
-              <CheckCircle2 className="w-6 h-6 text-green-500" />
-            </div>
-          </div>
-        </div>
-
-        {/* Pending */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                Pending
-              </p>
-              <p className="text-3xl font-bold text-slate-900 mt-1">{stats.pending}</p>
-            </div>
-            <div className="w-11 h-11 bg-yellow-50 rounded-xl flex items-center justify-center">
-              <AlertCircle className="w-6 h-6 text-yellow-500" />
-            </div>
-          </div>
-        </div>
-
-        {/* Rejected */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                Rejected
-              </p>
-              <p className="text-3xl font-bold text-slate-900 mt-1">{stats.rejected}</p>
-            </div>
-            <div className="w-11 h-11 bg-red-50 rounded-xl flex items-center justify-center">
-              <XCircle className="w-6 h-6 text-red-500" />
-            </div>
-          </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={fetchBookings}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </button>
+          <button
+            onClick={() => navigate('/new-booking')}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-900/20 transition hover:from-blue-700 hover:to-indigo-700"
+          >
+            <Plus className="w-4 h-4" />
+            New Booking
+          </button>
         </div>
       </div>
 
-      {/* ===== BOTTOM SECTION: Recent Bookings + Resource Utilization ===== */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Recent Bookings — 3 columns */}
-        <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Clock className="w-5 h-5 text-slate-400" />
-            <h3 className="font-semibold text-slate-900">Recent Bookings</h3>
+      {/* ── Stat cards ──────────────────────────────────────────── */}
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {Object.keys(STAT_META).map((key) => {
+          const meta = STAT_META[key];
+          const Icon = meta.icon;
+          return (
+            <div
+              key={key}
+              className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <div
+                className={`pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-gradient-to-br ${meta.glow} opacity-[0.08] blur-2xl transition group-hover:opacity-[0.18]`}
+              />
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                    {meta.label}
+                  </p>
+                  <p className="mt-3 text-4xl font-bold tracking-tight text-slate-900">
+                    {stats[key]}
+                  </p>
+                </div>
+                <div className={`grid h-11 w-11 place-items-center rounded-xl ${meta.iconBg} ring-4 ${meta.ring}`}>
+                  <Icon className={`w-5 h-5 ${meta.iconText}`} />
+                </div>
+              </div>
+              <div className={`mt-4 h-1 w-full rounded-full bg-gradient-to-r ${meta.bar} opacity-80`} />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Bottom section ──────────────────────────────────────── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+        {/* Recent Bookings */}
+        <div className="lg:col-span-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-slate-600">
+                <Clock className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900">Recent Bookings</h3>
+                <p className="text-xs text-slate-500">Last 5 activity</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/my-bookings')}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700"
+            >
+              View all
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {recentBookings.length === 0 ? (
-            <div className="text-center py-8">
-              <CalendarDays className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm text-slate-400">No bookings yet</p>
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-12 text-center">
+              <div className="grid h-12 w-12 mx-auto place-items-center rounded-2xl bg-white ring-4 ring-slate-100">
+                <CalendarDays className="w-6 h-6 text-slate-300" />
+              </div>
+              <p className="mt-3 text-sm font-medium text-slate-600">No bookings yet</p>
+              <p className="mt-1 text-xs text-slate-400">Get started by creating your first one</p>
               <button
                 onClick={() => navigate('/new-booking')}
-                className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                className="mt-4 inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-blue-900/20 transition hover:from-blue-700 hover:to-indigo-700"
               >
-                Create your first booking →
+                <Plus className="w-3.5 h-3.5" />
+                Create booking
               </button>
             </div>
           ) : (
-            <div className="space-y-3">
-              {recentBookings.map((booking) => (
-                <div
-                  key={booking.id}
-                  className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0"
-                >
-                  <div className="min-w-0">
-                    <p className="font-medium text-slate-800 text-sm truncate">
-                      {booking.resourceName || 'Resource'}
-                    </p>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      {formatDate(booking.startTime)} · {formatTime(booking.startTime)}–
-                      {formatTime(booking.endTime)}
-                    </p>
-                  </div>
-                  <span
-                    className={`px-2.5 py-1 text-xs font-semibold rounded-full flex-shrink-0 ml-3 ${
-                      STATUS_STYLES[booking.status] || 'bg-gray-100 text-gray-600'
-                    }`}
+            <div className="space-y-2">
+              {recentBookings.map((booking) => {
+                const StatusIcon = STATUS_ICONS[booking.status] || AlertCircle;
+                return (
+                  <div
+                    key={booking.id}
+                    className="group flex items-center justify-between gap-3 rounded-xl border border-transparent px-3 py-3 transition hover:border-slate-200 hover:bg-slate-50"
                   >
-                    {booking.status}
-                  </span>
-                </div>
-              ))}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 ring-1 ring-blue-100">
+                        <CalendarDays className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-slate-800">
+                          {booking.resourceName || 'Resource'}
+                        </p>
+                        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500">
+                          <Clock className="w-3 h-3" />
+                          {formatDate(booking.startTime)} · {formatTime(booking.startTime)}–
+                          {formatTime(booking.endTime)}
+                        </p>
+                      </div>
+                    </div>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ring-1 ${
+                        STATUS_STYLES[booking.status] || 'bg-slate-100 text-slate-600 ring-slate-200'
+                      }`}
+                    >
+                      <StatusIcon className="w-3 h-3" />
+                      {booking.status}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Resource Utilization — 2 columns */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-5 h-5 text-slate-400" />
-            <h3 className="font-semibold text-slate-900">Resource Utilization</h3>
+        {/* Resource Utilization */}
+        <div className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-600">
+                <TrendingUp className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900">Resource Utilization</h3>
+                <p className="text-xs text-slate-500">By resource type</p>
+              </div>
+            </div>
           </div>
 
           {resourceData.length === 0 ? (
-            <div className="text-center py-8">
-              <TrendingUp className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm text-slate-400">No data available</p>
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-12 text-center">
+              <div className="grid h-12 w-12 mx-auto place-items-center rounded-2xl bg-white ring-4 ring-slate-100">
+                <TrendingUp className="w-6 h-6 text-slate-300" />
+              </div>
+              <p className="mt-3 text-sm font-medium text-slate-600">No data available</p>
+              <p className="mt-1 text-xs text-slate-400">Make a booking to see utilization</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {resourceData.map((resource) => (
-                <div key={resource.name}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm text-slate-700">{resource.name}</span>
-                    <span className="text-xs text-slate-400">
-                      {resource.count} booking{resource.count !== 1 ? 's' : ''} ({resource.percent}%)
-                    </span>
+              {resourceData.map((resource, idx) => {
+                const bar = UTILIZATION_BARS[idx % UTILIZATION_BARS.length];
+                return (
+                  <div key={resource.name}>
+                    <div className="mb-1.5 flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                        <span className={`h-2 w-2 rounded-full bg-gradient-to-r ${bar}`} />
+                        {resource.name}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                        <span className="font-semibold text-slate-700">{resource.count}</span>
+                        <span>booking{resource.count !== 1 ? 's' : ''}</span>
+                        <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600">
+                          {resource.percent}%
+                        </span>
+                      </span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r ${bar} shadow-sm transition-all duration-700 ease-out`}
+                        style={{ width: `${Math.max(resource.percent, 3)}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-blue-500 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.max(resource.percent, 3)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
+
+              <div className="mt-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50/40 p-3">
+                <span className="grid h-7 w-7 place-items-center rounded-lg bg-white text-blue-600 ring-1 ring-slate-200">
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </span>
+                <p className="text-xs text-slate-600">
+                  Tracking <span className="font-semibold text-slate-800">{resourceData.length}</span>{' '}
+                  resource type{resourceData.length !== 1 ? 's' : ''} across{' '}
+                  <span className="font-semibold text-slate-800">{stats.total}</span> booking
+                  {stats.total !== 1 ? 's' : ''}
+                </p>
+              </div>
             </div>
           )}
         </div>

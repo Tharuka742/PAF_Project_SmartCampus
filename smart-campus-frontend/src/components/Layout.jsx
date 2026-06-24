@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { Outlet, NavLink, useLocation, Link } from 'react-router-dom';
 import {
   LayoutDashboard,
   CalendarPlus,
@@ -50,14 +50,15 @@ function Layout() {
 
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-40
-          w-64 bg-slate-800 text-white flex flex-col
+          relative fixed lg:static inset-y-0 left-0 z-40
+          w-64 bg-gradient-to-b from-[#0b1a3a] via-[#0c1f44] to-[#0a1730] text-white flex flex-col
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
-        <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-700">
-          <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(6,182,212,0.18),transparent_60%)]" />
+        <div className="relative flex items-center gap-3 px-5 py-5 border-b border-white/10">
+          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-900/40 flex-shrink-0">
             <CalendarDays className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -72,8 +73,8 @@ function Layout() {
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-4 overflow-y-auto">
-          <p className="px-3 mb-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <nav className="relative flex-1 px-3 py-4 overflow-y-auto">
+          <p className="px-3 mb-3 text-[10px] font-semibold text-slate-400 uppercase tracking-[0.22em]">
             Navigation
           </p>
           <ul className="space-y-1">
@@ -86,12 +87,12 @@ function Layout() {
                     to={item.path}
                     onClick={() => setSidebarOpen(false)}
                     className={`
-                      flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                      flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
                       transition-all duration-200
                       ${
                         isActive
-                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                          : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                          ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-900/30'
+                          : 'text-slate-300 hover:bg-white/10 hover:text-white'
                       }
                     `}
                   >
@@ -104,7 +105,7 @@ function Layout() {
           </ul>
         </nav>
 
-        <div className="px-5 py-4 border-t border-slate-700">
+        <div className="relative px-5 py-4 border-t border-white/10">
           <p className="text-xs text-slate-500">&copy; 2026 Smart Campus</p>
         </div>
       </aside>
@@ -125,9 +126,14 @@ function Layout() {
           <div className="flex-1 lg:hidden" />
 
           <div className="flex items-center gap-2">
-            <span className={`px-3 py-1 text-xs font-semibold rounded-full ${badgeStyle}`}>
+            <Link
+              to={isAdmin ? '/dashboard/admin' : '/dashboard/student'}
+              className={`px-3 py-1 text-xs font-semibold rounded-full transition hover:opacity-80 hover:ring-2 ${
+                isAdmin ? 'hover:ring-cyan-300' : 'hover:ring-blue-300'
+              } ${badgeStyle}`}
+            >
               {moduleBadge}
-            </span>
+            </Link>
           </div>
         </header>
 

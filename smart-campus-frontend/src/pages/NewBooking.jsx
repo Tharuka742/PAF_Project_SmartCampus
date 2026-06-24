@@ -1,6 +1,20 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CalendarPlus, Loader2 } from 'lucide-react';
+import {
+  CalendarPlus,
+  Loader2,
+  Building2,
+  CalendarDays,
+  Clock,
+  FileText,
+  Users,
+  MapPin,
+  Sparkles,
+  CheckCircle2,
+  RotateCcw,
+  Send,
+  Info,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import bookingService from '../services/bookingService';
 import { getResources } from '../services/resourceService';
@@ -174,212 +188,287 @@ function NewBooking() {
 
   const today = new Date().toISOString().split('T')[0];
 
+  const inputBase =
+    'w-full px-4 py-3 rounded-xl text-sm bg-white border transition-all duration-200 outline-none focus:ring-4';
+  const inputOk =
+    'border-slate-200 hover:border-blue-300 focus:border-blue-400 focus:ring-blue-100';
+  const inputBad =
+    'border-rose-300 bg-rose-50/50 focus:border-rose-400 focus:ring-rose-100';
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 p-6">
-      <div className="w-full max-w-2xl">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-slate-900">New Booking</h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Request a campus resource booking
-          </p>
+    <div className="min-h-full">
+      {/* Page header */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-700">
+            <Sparkles className="w-3 h-3" />
+            New Request
+          </div>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">New Booking</h1>
+          <p className="mt-1 text-sm text-slate-500">Request a campus resource booking</p>
         </div>
+      </div>
 
-        <div className="relative backdrop-blur-xl bg-white/70 border border-white/40 rounded-2xl shadow-2xl p-6 sm:p-8 transition-all duration-300 hover:shadow-blue-200/50">
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-200/20 to-indigo-200/20 blur-xl opacity-40"></div>
-          <div className="relative z-10">
-
-            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                <CalendarPlus className="w-5 h-5 text-blue-600" />
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        {/* ── Main form card ────────────────────────────────────── */}
+        <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-6 py-5 text-white">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/15 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-12 left-1/3 h-32 w-32 rounded-full bg-cyan-300/20 blur-3xl" />
+            <div className="relative flex items-center gap-3">
+              <div className="grid h-11 w-11 place-items-center rounded-xl bg-white/15 backdrop-blur ring-1 ring-white/25">
+                <CalendarPlus className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-semibold text-slate-900">
-                  Booking Request Form
-                </h2>
-                <p className="text-xs text-slate-400">
-                  Pick a resource from the catalogue, then choose a time.
+                <h2 className="text-base font-bold">Booking Request Form</h2>
+                <p className="text-xs text-blue-100">Pick a resource, choose a time, submit for approval.</p>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5 p-6 sm:p-8">
+            {/* RESOURCE */}
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                <Building2 className="w-3.5 h-3.5 text-blue-600" />
+                Resource <span className="text-rose-500">*</span>
+              </label>
+              <select
+                value={formData.resourceId}
+                onChange={(e) => handleChange('resourceId', e.target.value)}
+                disabled={loadingResources}
+                className={`${inputBase} ${errors.resourceId ? inputBad : inputOk}`}
+              >
+                <option value="">
+                  {loadingResources
+                    ? 'Loading resources...'
+                    : resources.length === 0
+                    ? 'No bookable resources — ask an admin to add one'
+                    : 'Select a resource'}
+                </option>
+                {resources.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name} · {r.type} · {r.location}
+                  </option>
+                ))}
+              </select>
+              {errors.resourceId && (
+                <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-rose-600">
+                  <Info className="w-3 h-3" />
+                  {errors.resourceId}
                 </p>
+              )}
+            </div>
+
+            {selectedResource && (
+              <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50/60 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-white text-blue-600 ring-1 ring-blue-100">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-900">{selectedResource.name}</p>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600">
+                      <span className="inline-flex items-center gap-1">
+                        <Building2 className="w-3 h-3 text-slate-400" />
+                        {selectedResource.type}
+                      </span>
+                      {selectedResource.location && (
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-slate-400" />
+                          {selectedResource.location}
+                        </span>
+                      )}
+                      {selectedResource.capacity && (
+                        <span className="inline-flex items-center gap-1">
+                          <Users className="w-3 h-3 text-slate-400" />
+                          Capacity {selectedResource.capacity}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Date */}
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                <CalendarDays className="w-3.5 h-3.5 text-blue-600" />
+                Date <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="date"
+                min={today}
+                value={formData.date}
+                onChange={(e) => handleChange('date', e.target.value)}
+                className={`${inputBase} ${errors.date ? inputBad : inputOk}`}
+              />
+              {errors.date && (
+                <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-rose-600">
+                  <Info className="w-3 h-3" />
+                  {errors.date}
+                </p>
+              )}
+            </div>
+
+            {/* Times */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                  <Clock className="w-3.5 h-3.5 text-blue-600" />
+                  Start <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="time"
+                  min="06:00"
+                  max="22:00"
+                  value={formData.startTime}
+                  onChange={(e) => handleChange('startTime', e.target.value)}
+                  className={`${inputBase} ${errors.startTime ? inputBad : inputOk}`}
+                />
+                {errors.startTime && (
+                  <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-rose-600">
+                    <Info className="w-3 h-3" />
+                    {errors.startTime}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                  <Clock className="w-3.5 h-3.5 text-blue-600" />
+                  End <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="time"
+                  min="06:00"
+                  max="22:00"
+                  value={formData.endTime}
+                  onChange={(e) => handleChange('endTime', e.target.value)}
+                  className={`${inputBase} ${errors.endTime ? inputBad : inputOk}`}
+                />
+                {errors.endTime && (
+                  <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-rose-600">
+                    <Info className="w-3 h-3" />
+                    {errors.endTime}
+                  </p>
+                )}
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="flex items-center gap-2 rounded-xl border border-amber-100 bg-amber-50/70 px-3 py-2 text-xs text-amber-800">
+              <Info className="w-3.5 h-3.5 flex-shrink-0" />
+              Campus operating hours: <span className="font-semibold">06:00 – 22:00</span>
+            </div>
 
-              {/* RESOURCE */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Resource <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={formData.resourceId}
-                  onChange={(e) => handleChange('resourceId', e.target.value)}
-                  disabled={loadingResources}
-                  className={`w-full px-4 py-3 rounded-xl text-sm bg-white/80 backdrop-blur border transition-all duration-200 focus:ring-2 focus:ring-blue-400 focus:outline-none ${
-                    errors.resourceId ? 'border-red-300 bg-red-50' : 'border-slate-300 hover:border-blue-300'
-                  }`}
-                >
-                  <option value="">
-                    {loadingResources
-                      ? 'Loading resources...'
-                      : resources.length === 0
-                      ? 'No bookable resources — ask an admin to add one'
-                      : 'Select a resource'}
-                  </option>
-                  {resources.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name} · {r.type} · {r.location}
-                    </option>
-                  ))}
-                </select>
-                {errors.resourceId && (
-                  <p className="mt-1 text-xs text-red-500">{errors.resourceId}</p>
-                )}
-              </div>
-
-              {selectedResource && (
-                <div className="rounded-xl border border-blue-100 bg-blue-50/80 px-4 py-3 text-sm text-blue-800">
-                  <p>
-                    <span className="font-semibold">{selectedResource.name}</span>
-                    {' · '}Type: {selectedResource.type}
-                    {' · '}Location: {selectedResource.location}
-                    {selectedResource.capacity
-                      ? ` · Capacity: ${selectedResource.capacity}`
-                      : ''}
-                  </p>
-                </div>
-              )}
-
-              {/* Date */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Date <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  min={today}
-                  value={formData.date}
-                  onChange={(e) => handleChange('date', e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl text-sm bg-white/80 backdrop-blur border transition-all duration-200 focus:ring-2 focus:ring-blue-400 focus:outline-none ${
-                    errors.date ? 'border-red-300 bg-red-50' : 'border-slate-300 hover:border-blue-300'
-                  }`}
-                />
-                {errors.date && (
-                  <p className="mt-1 text-xs text-red-500">{errors.date}</p>
-                )}
-              </div>
-
-              {/* Times */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                    Start Time <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="time"
-                    min="06:00"
-                    max="22:00"
-                    value={formData.startTime}
-                    onChange={(e) => handleChange('startTime', e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl text-sm bg-white/80 backdrop-blur border transition-all duration-200 focus:ring-2 focus:ring-blue-400 focus:outline-none ${
-                      errors.startTime ? 'border-red-300 bg-red-50' : 'border-slate-300 hover:border-blue-300'
-                    }`}
-                  />
-                  {errors.startTime && (
-                    <p className="mt-1 text-xs text-red-500">{errors.startTime}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                    End Time <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="time"
-                    min="06:00"
-                    max="22:00"
-                    value={formData.endTime}
-                    onChange={(e) => handleChange('endTime', e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl text-sm bg-white/80 backdrop-blur border transition-all duration-200 focus:ring-2 focus:ring-blue-400 focus:outline-none ${
-                      errors.endTime ? 'border-red-300 bg-red-50' : 'border-slate-300 hover:border-blue-300'
-                    }`}
-                  />
-                  {errors.endTime && (
-                    <p className="mt-1 text-xs text-red-500">{errors.endTime}</p>
-                  )}
-                </div>
-              </div>
-
-              <p className="text-xs text-slate-400 -mt-2">
-                Campus operating hours: 06:00 – 22:00
-              </p>
-
-              {/* Purpose */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Purpose <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  value={formData.purpose}
-                  onChange={(e) => handleChange('purpose', e.target.value)}
-                  placeholder="e.g. Guest lecture on AI"
-                  rows={3}
-                  className={`w-full px-4 py-3 rounded-xl text-sm bg-white/80 backdrop-blur border transition-all duration-200 focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none ${
-                    errors.purpose ? 'border-red-300 bg-red-50' : 'border-slate-300 hover:border-blue-300'
-                  }`}
-                />
-                {errors.purpose && (
-                  <p className="mt-1 text-xs text-red-500">{errors.purpose}</p>
-                )}
-                <p className="mt-1 text-xs text-slate-400">
+            {/* Purpose */}
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                <FileText className="w-3.5 h-3.5 text-blue-600" />
+                Purpose <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                value={formData.purpose}
+                onChange={(e) => handleChange('purpose', e.target.value)}
+                placeholder="e.g. Guest lecture on AI"
+                rows={3}
+                className={`${inputBase} resize-none ${errors.purpose ? inputBad : inputOk}`}
+              />
+              {errors.purpose ? (
+                <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-rose-600">
+                  <Info className="w-3 h-3" />
+                  {errors.purpose}
+                </p>
+              ) : (
+                <p className="mt-1.5 text-xs text-slate-500">
                   Briefly describe the reason for your booking (minimum 5 characters)
                 </p>
-              </div>
+              )}
+            </div>
 
-              {/* Attendees */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Expected Attendees
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={formData.expectedAttendees}
-                  onChange={(e) =>
-                    handleChange('expectedAttendees', e.target.value)
-                  }
-                  placeholder="e.g. 30"
-                  className={`w-full px-4 py-3 rounded-xl text-sm bg-white/80 backdrop-blur border transition-all duration-200 focus:ring-2 focus:ring-blue-400 focus:outline-none ${
-                    errors.expectedAttendees ? 'border-red-300 bg-red-50' : 'border-slate-300 hover:border-blue-300'
-                  }`}
-                />
-                {errors.expectedAttendees && (
-                  <p className="mt-1 text-xs text-red-500">{errors.expectedAttendees}</p>
-                )}
-                <p className="mt-1 text-xs text-slate-400">
-                  Optional — estimated number of people attending
+            {/* Attendees */}
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                <Users className="w-3.5 h-3.5 text-blue-600" />
+                Expected Attendees
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={formData.expectedAttendees}
+                onChange={(e) => handleChange('expectedAttendees', e.target.value)}
+                placeholder="e.g. 30"
+                className={`${inputBase} ${errors.expectedAttendees ? inputBad : inputOk}`}
+              />
+              {errors.expectedAttendees ? (
+                <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-rose-600">
+                  <Info className="w-3 h-3" />
+                  {errors.expectedAttendees}
                 </p>
-              </div>
+              ) : (
+                <p className="mt-1.5 text-xs text-slate-500">Optional — estimated number of people attending</p>
+              )}
+            </div>
 
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="submit"
-                  disabled={submitting || loadingResources}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60"
-                >
-                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Submit Booking Request
-                </button>
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  className="px-6 py-3 border border-slate-300 rounded-xl hover:bg-slate-100 transition-all"
-                >
-                  Reset
-                </button>
-              </div>
-
-            </form>
-
-          </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                type="submit"
+                disabled={submitting || loadingResources}
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-900/20 transition hover:from-blue-700 hover:to-indigo-700 hover:shadow-blue-900/30 active:scale-[0.98] disabled:opacity-60"
+              >
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                Submit Booking Request
+              </button>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Reset
+              </button>
+            </div>
+          </form>
         </div>
+
+        {/* ── Side info panel ───────────────────────────────────── */}
+        <aside className="space-y-4">
+          <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm">
+            <div className="flex items-center gap-2">
+              <div className="grid h-8 w-8 place-items-center rounded-lg bg-blue-100 text-blue-600">
+                <Info className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900">How it works</h3>
+            </div>
+            <ol className="mt-4 space-y-3">
+              {[
+                'Pick an available resource from the catalogue',
+                'Choose a date and time within operating hours',
+                'Describe the purpose so admins can approve quickly',
+                'Track approval in your bookings list',
+              ].map((step, i) => (
+                <li key={step} className="flex items-start gap-3">
+                  <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-[10px] font-bold text-white">
+                    {i + 1}
+                  </span>
+                  <span className="text-xs leading-relaxed text-slate-600">{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50/60 p-5">
+            <div className="flex items-center gap-2">
+              <div className="grid h-8 w-8 place-items-center rounded-lg bg-white text-emerald-600 ring-1 ring-emerald-100">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900">Quick tip</h3>
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-slate-600">
+              Bookings submitted earlier tend to get approved faster. Provide a clear purpose so reviewers don't have to follow up.
+            </p>
+          </div>
+        </aside>
       </div>
     </div>
   );

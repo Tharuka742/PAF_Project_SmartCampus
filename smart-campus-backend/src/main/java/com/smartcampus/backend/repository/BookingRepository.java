@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
-import org.springframework.stereotype.Repository;
 
 import com.smartcampus.backend.model.Booking;
 import com.smartcampus.backend.model.enums.BookingStatus;
@@ -15,7 +14,6 @@ import com.smartcampus.backend.model.enums.BookingStatus;
  * MongoDB repository for Booking documents.
  * Spring Data auto-implements these methods based on naming conventions.
  */
-@Repository
 public interface BookingRepository extends MongoRepository<Booking, String> {
 
     // ---------- Basic lookups ----------

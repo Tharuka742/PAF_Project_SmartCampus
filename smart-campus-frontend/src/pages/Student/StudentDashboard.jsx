@@ -205,6 +205,9 @@ function StudentDashboard() {
     const total = allBookings.length
     const pending = allBookings.filter((b) => b.status === 'PENDING').length
     const approved = allBookings.filter((b) => b.status === 'APPROVED').length
+    const rejected = allBookings.filter((b) => b.status === 'REJECTED').length
+    // No notifications backend yet — surface booking decisions (approved/rejected) as notifications
+    const notifications = approved + rejected
     const upcomingToday = upcomingBookings.filter((b) => {
         if (!b.startTime) return false
         const d = new Date(b.startTime)
@@ -234,8 +237,8 @@ function StudentDashboard() {
         {
             key: 'notifications',
             label: 'Notifications',
-            value: '0',
-            subtext: 'Unread',
+            value: bookingsLoading ? '...' : String(notifications),
+            subtext: notifications ? 'Booking updates' : 'No new updates',
         },
     ]
 
